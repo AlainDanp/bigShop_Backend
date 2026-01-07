@@ -8,4 +8,6 @@ import lombok.Getter;
 public class Order {
     private final Order id;
 
+    private final String orderNumber;
+
 }
