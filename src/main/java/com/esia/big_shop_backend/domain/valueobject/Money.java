@@ -6,6 +6,8 @@ import lombok.Getter;
 @Getter
 @EqualsAndHashCode
 public class Money {
+    public static final Money ZERO = new Money(0, "XAF");
+
     private final double amount;
     private final String currency;
 
@@ -39,6 +41,13 @@ public class Money {
     public boolean isLessThan(Money other) {
         validateSameCurrency(other);
         return this.amount < other.amount;
+    }
+
+    public Money multiply(int multiplier) {
+        if (multiplier < 0) {
+            throw new IllegalArgumentException("Multiplier cannot be negative");
+        }
+        return new Money(this.amount * multiplier, this.currency);
     }
 
     private void validateSameCurrency(Money other) {

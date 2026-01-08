@@ -2,6 +2,7 @@ package com.esia.big_shop_backend.infrastrucute.persitence.repository.impl;
 
 import com.esia.big_shop_backend.domain.entity.Product;
 import com.esia.big_shop_backend.domain.repository.ProductRepository;
+import com.esia.big_shop_backend.domain.valueobject.ids.CategoryId;
 import com.esia.big_shop_backend.domain.valueobject.ids.ProductId;
 import com.esia.big_shop_backend.infrastrucute.persitence.entity.ProductJpaEntity;
 import com.esia.big_shop_backend.infrastrucute.persitence.mapper.ProductMapper;
@@ -37,6 +38,11 @@ public class ProductRepositoryImpl implements ProductRepository {
     public Page<Product> findAll(Pageable pageable) {
         return jpaRepository.findAll(pageable)
                 .map(mapper::toDomain);
+    }
+
+    @Override
+    public Page<Product> findByCategory(CategoryId categoryId, Pageable pageable) {
+        return null;
     }
 
     @Override

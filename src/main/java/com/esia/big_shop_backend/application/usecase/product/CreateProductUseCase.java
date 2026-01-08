@@ -2,10 +2,13 @@ package com.esia.big_shop_backend.application.usecase.product;
 
 import com.esia.big_shop_backend.domain.entity.Product;
 import com.esia.big_shop_backend.domain.repository.ProductRepository;
+import com.esia.big_shop_backend.domain.repository.CategoryRepository;
 import com.esia.big_shop_backend.domain.valueobject.Money;
+import com.esia.big_shop_backend.domain.valueobject.ids.CategoryId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.ErrorResponseException;
 
 
 @Service
@@ -19,7 +22,7 @@ public class CreateProductUseCase {
 
         CategoryId categoryId = CategoryId.of(command.getCategoryId());
         if (!categoryRepository.existsById(categoryId)) {
-            throw new CategoryNotFoundException("Category not found with id: " + categoryId.getValue());
+            throw new ErrorResponseException("Category not found with id: " + categoryId.getValue());
         }
 
         Product product = new Product(

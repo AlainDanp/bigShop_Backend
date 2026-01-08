@@ -1,6 +1,7 @@
 package com.esia.big_shop_backend.infrastrucute.persitence.mapper;
 
 import com.esia.big_shop_backend.domain.entity.Product;
+import com.esia.big_shop_backend.domain.valueobject.ids.CategoryId;
 import com.esia.big_shop_backend.domain.valueobject.Money;
 import com.esia.big_shop_backend.domain.valueobject.ids.ProductId;
 import com.esia.big_shop_backend.infrastrucute.persitence.entity.ProductJpaEntity;

@@ -3,17 +3,14 @@ package com.esia.big_shop_backend.application.usecase.product;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
-
+@AllArgsConstructor
 public class CreateProductCommand {
-    String name;
-    String description;
-    Double price;
-    Double discountPrice;
-    Integer stockQuantity;
-    Long categoryId;
-    String brand;
+    private final String name;
+    private final String description;
+    private final Double price;
+    private final Double discountPrice;
+    private final Integer stockQuantity;
+    private final Long categoryId;
 }
