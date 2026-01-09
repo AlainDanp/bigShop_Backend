@@ -2,9 +2,8 @@ package com.esia.big_shop_backend.presentation.rest;
 
 import com.esia.big_shop_backend.application.usecase.product.*;
 import com.esia.big_shop_backend.domain.entity.Product;
-import com.esia.big_shop_backend.presentation.dto.response.ProductResponse;
+import com.esia.big_shop_backend.presentation.dto.response.product.ProductResponse;
 import com.esia.big_shop_backend.presentation.dto.request.product.UpdateProductRequest;
-
 import com.esia.big_shop_backend.presentation.dto.request.product.CreateProductRequest;
 
 

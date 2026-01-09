@@ -1,4 +1,4 @@
-package com.esia.big_shop_backend.presentation.dto.response;
+package com.esia.big_shop_backend.presentation.dto.response.product;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

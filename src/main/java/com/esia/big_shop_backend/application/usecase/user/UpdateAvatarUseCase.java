@@ -2,6 +2,7 @@ package com.esia.big_shop_backend.application.usecase.user;
 
 import com.esia.big_shop_backend.domain.entity.User;
 import com.esia.big_shop_backend.domain.repository.UserRepository;
+import com.esia.big_shop_backend.domain.service.UserDomainService;
 import com.esia.big_shop_backend.domain.valueobject.ids.UserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UpdateAvatarUseCase {
     private final UserRepository userRepository;
+    private final UserDomainService userDomainService;
 
     @Transactional
     public User execute(Long userId, String avatarUrl) {
@@ -21,7 +23,7 @@ public class UpdateAvatarUseCase {
             throw new IllegalArgumentException("Avatar URL cannot be empty");
         }
 
-        user.updateAvatar(avatarUrl);
+        userDomainService.updateAvatar(user, avatarUrl);
 
         return userRepository.save(user);
     }

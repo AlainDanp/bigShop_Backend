@@ -5,6 +5,7 @@ import com.esia.big_shop_backend.domain.entity.OrderItem;
 import com.esia.big_shop_backend.domain.entity.Product;
 import com.esia.big_shop_backend.domain.repository.OrderRepository;
 import com.esia.big_shop_backend.domain.repository.ProductRepository;
+import com.esia.big_shop_backend.domain.service.ProductDomainService;
 import com.esia.big_shop_backend.domain.valueobject.Money;
 import com.esia.big_shop_backend.domain.valueobject.PhoneNumber;
 import com.esia.big_shop_backend.domain.valueobject.ShippingInfo;
@@ -25,6 +26,7 @@ import java.util.UUID;
 public class CreateOrderUseCase {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final ProductDomainService productDomainService;
 
     @Transactional
     public Order execute(CreateOrderCommand command) {
@@ -34,7 +36,7 @@ public class CreateOrderUseCase {
             Product product = productRepository.findById(ProductId.of(itemDto.getProductId()))
                     .orElseThrow(() -> new IllegalArgumentException("Product not found with id: " + itemDto.getProductId()));
 
-            if (!product.isInStock()) {
+            if (!productDomainService.isInStock(product)) {
                 throw new IllegalStateException("Product is out of stock: " + product.getName());
             }
 
@@ -43,7 +45,7 @@ public class CreateOrderUseCase {
             }
 
             // Decrease stock
-            product.decreaseStock(itemDto.getQuantity());
+            productDomainService.decreaseStock(product, itemDto.getQuantity());
             productRepository.save(product);
 
             // Create order item with snapshot of product info
@@ -51,7 +53,7 @@ public class CreateOrderUseCase {
                     null,
                     product.getId(),
                     product.getName(),
-                    product.hasDiscount() ? product.getDiscountPrice() : product.getPrice(),
+                    productDomainService.getEffectivePrice(product),
                     itemDto.getQuantity()
             );
             orderItems.add(orderItem);

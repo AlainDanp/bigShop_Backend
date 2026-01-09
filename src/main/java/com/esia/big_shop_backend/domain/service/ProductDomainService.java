@@ -51,7 +51,7 @@ public class ProductDomainService {
         return product.getPrice();
     }
 
-    public void iSActivate(Product product) {
+    public void activate(Product product) {
         product.setActive(true);
     }
 

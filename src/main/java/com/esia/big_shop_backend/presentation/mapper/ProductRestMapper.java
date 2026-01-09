@@ -6,7 +6,7 @@ import com.esia.big_shop_backend.application.usecase.product.UpdateProductComman
 import com.esia.big_shop_backend.domain.entity.Product;
 import com.esia.big_shop_backend.presentation.dto.request.product.CreateProductRequest;
 import com.esia.big_shop_backend.presentation.dto.request.product.UpdateProductRequest;
-import com.esia.big_shop_backend.presentation.dto.response.ProductResponse;
+import com.esia.big_shop_backend.presentation.dto.response.product.ProductResponse;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -45,8 +45,8 @@ public class ProductRestMapper {
                 product.getStockQuantity(),
                 product.getCategoryId().getValue(),
                 null, // categoryName - à récupérer si nécessaire
-                product.isActive(),
-                product.hasDiscount()
+                product.isActive()
         );
+
     }
 }

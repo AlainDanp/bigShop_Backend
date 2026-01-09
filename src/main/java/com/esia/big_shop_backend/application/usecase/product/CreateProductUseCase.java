@@ -22,7 +22,7 @@ public class CreateProductUseCase {
 
         CategoryId categoryId = CategoryId.of(command.getCategoryId());
         if (!categoryRepository.existsById(categoryId)) {
-            throw new ErrorResponseException("Category not found with id: " + categoryId.getValue());
+            throw new IllegalArgumentException("Category not found with id: " + categoryId.getValue());
         }
 
         Product product = new Product(

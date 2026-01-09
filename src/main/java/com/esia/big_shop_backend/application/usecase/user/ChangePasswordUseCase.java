@@ -4,6 +4,7 @@ import com.esia.big_shop_backend.application.port.output.PasswordEncoderPort;
 import com.esia.big_shop_backend.application.usecase.user.command.ChangePasswordCommand;
 import com.esia.big_shop_backend.domain.entity.User;
 import com.esia.big_shop_backend.domain.repository.UserRepository;
+import com.esia.big_shop_backend.domain.service.UserDomainService;
 import com.esia.big_shop_backend.domain.valueobject.ids.UserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChangePasswordUseCase {
     private final UserRepository userRepository;
     private final PasswordEncoderPort passwordEncoder;
+    private final UserDomainService userDomainService;
 
     @Transactional
     public void execute(ChangePasswordCommand command) {
@@ -32,7 +34,7 @@ public class ChangePasswordUseCase {
 
         // Change password
         String hashedPassword = passwordEncoder.encode(command.getNewPassword());
-        user.changePassword(hashedPassword);
+        userDomainService.changePassword(user, hashedPassword);
 
         userRepository.save(user);
     }

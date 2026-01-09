@@ -3,6 +3,7 @@ package com.esia.big_shop_backend.application.usecase.product;
 import com.esia.big_shop_backend.domain.entity.Product;
 import com.esia.big_shop_backend.domain.repository.CategoryRepository;
 import com.esia.big_shop_backend.domain.repository.ProductRepository;
+import com.esia.big_shop_backend.domain.service.ProductDomainService;
 import com.esia.big_shop_backend.domain.valueobject.Money;
 import com.esia.big_shop_backend.domain.valueobject.ids.CategoryId;
 import com.esia.big_shop_backend.domain.valueobject.ids.ProductId;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UpdateProductUseCase {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final ProductDomainService productDomainService;
 
     @Transactional
     public Product execute(UpdateProductCommand command) {
@@ -27,23 +29,23 @@ public class UpdateProductUseCase {
             if (!categoryRepository.existsById(categoryId)) {
                 throw new IllegalArgumentException("Category not found with id: " + command.getCategoryId());
             }
-            product.updateCategory(categoryId);
+            productDomainService.updateCategory(product, categoryId);
         }
 
         // Update product details
         Money price = command.getPrice() != null ? new Money(command.getPrice(), "XAF") : null;
         Money discountPrice = command.getDiscountPrice() != null ? new Money(command.getDiscountPrice(), "XAF") : null;
 
-        product.updateDetails(command.getName(), command.getDescription(), price, discountPrice);
+        productDomainService.updateDetails(product, command.getName(), command.getDescription(), price, discountPrice);
 
         // Update stock if provided
         if (command.getStockQuantity() != null) {
             int currentStock = product.getStockQuantity();
             int difference = command.getStockQuantity() - currentStock;
             if (difference > 0) {
-                product.increaseStock(difference);
+                productDomainService.increaseStock(product, difference);
             } else if (difference < 0) {
-                product.decreaseStock(Math.abs(difference));
+                productDomainService.decreaseStock(product, Math.abs(difference));
             }
         }
 

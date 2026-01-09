@@ -2,6 +2,7 @@ package com.esia.big_shop_backend.application.usecase.user;
 
 import com.esia.big_shop_backend.domain.entity.User;
 import com.esia.big_shop_backend.domain.repository.UserRepository;
+import com.esia.big_shop_backend.domain.service.UserDomainService;
 import com.esia.big_shop_backend.domain.valueobject.ids.UserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ToggleUserStatusUseCase {
     private final UserRepository userRepository;
+    private final UserDomainService userDomainService;
 
     @Transactional
     public User execute(Long userId, boolean activate) {
@@ -18,9 +20,9 @@ public class ToggleUserStatusUseCase {
                 .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
 
         if (activate) {
-            user.activate();
+            userDomainService.activate(user);
         } else {
-            user.deactivate();
+            userDomainService.deactivate(user);
         }
 
         return userRepository.save(user);
