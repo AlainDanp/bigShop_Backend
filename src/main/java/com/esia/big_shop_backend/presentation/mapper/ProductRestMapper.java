@@ -1,9 +1,11 @@
 package com.esia.big_shop_backend.presentation.mapper;
 
 
+import com.esia.big_shop_backend.application.usecase.product.CreateProductCommand;
 import com.esia.big_shop_backend.application.usecase.product.UpdateProductCommand;
 import com.esia.big_shop_backend.domain.entity.Product;
 import com.esia.big_shop_backend.presentation.dto.request.product.CreateProductRequest;
+import com.esia.big_shop_backend.presentation.dto.request.product.UpdateProductRequest;
 import com.esia.big_shop_backend.presentation.dto.response.ProductResponse;
 import org.springframework.stereotype.Component;
 

@@ -16,9 +16,7 @@ public class UpdateUserProfileUseCase {
     public User execute(UpdateUserProfileCommand command) {
         User user = userRepository.findById(UserId.of(command.getUserId()))
                 .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + command.getUserId()));
-
         user.updateProfile(command.getFirstName(), command.getLastName(), null);
-
         return userRepository.save(user);
     }
 }

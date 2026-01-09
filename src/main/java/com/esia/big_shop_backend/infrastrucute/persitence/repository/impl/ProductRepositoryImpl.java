@@ -42,11 +42,6 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     @Override
     public Page<Product> findByCategory(CategoryId categoryId, Pageable pageable) {
-        return null;
-    }
-
-    @Override
-    public Page<Product> findByCategory(CategoryId categoryId, Pageable pageable) {
         return jpaRepository.findByCategoryId(categoryId.getValue(), pageable)
                 .map(mapper::toDomain);
     }
@@ -60,6 +55,18 @@ public class ProductRepositoryImpl implements ProductRepository {
     @Override
     public Page<Product> findProductsOnSale(Pageable pageable) {
         return jpaRepository.findProductsOnSale(pageable)
+                .map(mapper::toDomain);
+    }
+
+    @Override
+    public Page<Product> findNewProducts(Pageable pageable) {
+        return jpaRepository.findNewProducts(pageable)
+                .map(mapper::toDomain);
+    }
+
+    @Override
+    public Page<Product> searchProducts(String keyword, Pageable pageable) {
+        return jpaRepository.searchProducts(keyword, pageable)
                 .map(mapper::toDomain);
     }
 

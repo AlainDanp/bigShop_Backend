@@ -14,4 +14,11 @@ public interface ProductJpaRepository extends JpaRepository<ProductJpaEntity, Lo
     @Query("SELECT p FROM ProductJpaEntity p WHERE p.isActive = true AND " +
             "(p.discountPrice IS NOT NULL AND p.discountPrice < p.price)")
     Page<ProductJpaEntity> findProductsOnSale(Pageable pageable);
+
+    @Query("SELECT p FROM ProductJpaEntity p ORDER BY p.id DESC")
+    Page<ProductJpaEntity> findNewProducts(Pageable pageable);
+
+    @Query("SELECT p FROM ProductJpaEntity p WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    Page<ProductJpaEntity> searchProducts(String keyword, Pageable pageable);
 }
