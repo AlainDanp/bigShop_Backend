@@ -16,7 +16,6 @@ public class CreateCategoryUseCase {
 
     @Transactional
     public Category execute(CreateCategoryCommand command) {
-        // Verify name doesn't already exist
         if (categoryRepository.existsByName(command.getName())) {
             throw new IllegalArgumentException("Category with name '" + command.getName() + "' already exists");
         }

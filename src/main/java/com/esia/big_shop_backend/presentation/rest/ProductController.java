@@ -1,7 +1,9 @@
 package com.esia.big_shop_backend.presentation.rest;
 
 import com.esia.big_shop_backend.application.usecase.product.*;
+import com.esia.big_shop_backend.application.usecase.product.command.CreateProductCommand;
 import com.esia.big_shop_backend.application.usecase.product.command.DeleteProductCommand;
+import com.esia.big_shop_backend.application.usecase.product.command.UpdateProductCommand;
 import com.esia.big_shop_backend.application.usecase.product.query.GetAllProductsQuery;
 import com.esia.big_shop_backend.application.usecase.product.query.GetProductQuery;
 import com.esia.big_shop_backend.domain.entity.Product;

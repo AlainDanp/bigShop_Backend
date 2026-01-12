@@ -1,5 +1,6 @@
 package com.esia.big_shop_backend.application.usecase.product;
 
+import com.esia.big_shop_backend.application.usecase.product.command.AddProductImageCommand;
 import com.esia.big_shop_backend.domain.entity.ProductImage;
 import com.esia.big_shop_backend.domain.repository.ProductImageRepository;
 import com.esia.big_shop_backend.domain.repository.ProductRepository;
@@ -22,7 +23,6 @@ public class AddProductImageUseCase {
             throw new IllegalArgumentException("Product not found with id: " + command.getProductId());
         }
 
-        // Create product image
         ProductImage productImage = new ProductImage(
                 null,
                 productId,

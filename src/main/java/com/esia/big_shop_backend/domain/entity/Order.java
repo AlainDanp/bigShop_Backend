@@ -6,7 +6,6 @@ import com.esia.big_shop_backend.domain.valueobject.ids.OrderId;
 import com.esia.big_shop_backend.domain.valueobject.ids.UserId;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
