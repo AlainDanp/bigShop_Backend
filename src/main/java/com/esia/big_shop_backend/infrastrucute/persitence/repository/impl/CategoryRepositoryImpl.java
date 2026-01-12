@@ -45,6 +45,24 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     }
 
     @Override
+    public List<Category> findRootCategories(int page) {
+        Pageable pageable = PageRequest.of(page, 20);
+        return jpaRepository.findByParentIsNull(pageable)
+                .stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Category> findSubCategories(CategoryId parentId, int page) {
+        Pageable pageable = PageRequest.of(page, 20);
+        return jpaRepository.findByParentId(parentId.getValue(), pageable)
+                .stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public void deleteById(CategoryId id) {
         jpaRepository.deleteById(id.getValue());
     }

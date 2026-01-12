@@ -1,5 +1,6 @@
 package com.esia.big_shop_backend.application.usecase.admin;
 
+import com.esia.big_shop_backend.application.usecase.admin.result.UserGrowthStatistics;
 import com.esia.big_shop_backend.domain.entity.User;
 import com.esia.big_shop_backend.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class GetUserGrowthStatisticsUseCase {
         List<User> allUsers = userRepository.findAll(0, Integer.MAX_VALUE);
         long totalUsers = allUsers.size();
 
-        // Count active users
+
         long activeUsers = allUsers.stream()
                 .filter(User::isActive)
                 .count();

@@ -18,6 +18,10 @@ public class CategoryJpaEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private CategoryJpaEntity parent;
+
     @Column(nullable = false, unique = true)
     private String name;
 

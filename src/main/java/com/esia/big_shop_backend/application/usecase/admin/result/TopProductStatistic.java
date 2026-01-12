@@ -1,4 +1,4 @@
-package com.esia.big_shop_backend.application.usecase.admin;
+package com.esia.big_shop_backend.application.usecase.admin.result;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

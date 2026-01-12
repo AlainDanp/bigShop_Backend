@@ -1,6 +1,7 @@
 package com.esia.big_shop_backend.application.usecase.admin;
 
 import com.esia.big_shop_backend.application.usecase.admin.query.GetTopSellingProductsQuery;
+import com.esia.big_shop_backend.application.usecase.admin.result.TopProductStatistic;
 import com.esia.big_shop_backend.domain.entity.Order;
 import com.esia.big_shop_backend.domain.entity.OrderItem;
 import com.esia.big_shop_backend.domain.repository.OrderRepository;

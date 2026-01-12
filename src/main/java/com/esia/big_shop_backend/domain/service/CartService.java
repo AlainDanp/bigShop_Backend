@@ -20,8 +20,6 @@ public class CartService {
             CartItem item = existingItem.get();
             item.setQuantity(item.getQuantity() + quantity);
         } else {
-            // Note: CartItemId generation should ideally be handled by persistence or a factory
-            // For now, we assume it's handled when persisting or we use a temporary ID if needed.
             cart.getItems().add(new CartItem(null, product, quantity, product.getPrice()));
         }
     }

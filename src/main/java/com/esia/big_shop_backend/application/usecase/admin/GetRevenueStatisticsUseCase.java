@@ -1,6 +1,7 @@
 package com.esia.big_shop_backend.application.usecase.admin;
 
 import com.esia.big_shop_backend.application.usecase.admin.query.GetRevenueStatisticsQuery;
+import com.esia.big_shop_backend.application.usecase.admin.result.RevenueStatistics;
 import com.esia.big_shop_backend.domain.entity.Order;
 import com.esia.big_shop_backend.domain.repository.OrderRepository;
 import com.esia.big_shop_backend.domain.valueobject.enums.OrderStatus;

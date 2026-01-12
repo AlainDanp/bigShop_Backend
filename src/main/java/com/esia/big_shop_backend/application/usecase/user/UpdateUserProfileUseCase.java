@@ -1,5 +1,6 @@
 package com.esia.big_shop_backend.application.usecase.user;
 
+import com.esia.big_shop_backend.application.usecase.user.command.UpdateUserProfileCommand;
 import com.esia.big_shop_backend.domain.entity.User;
 import com.esia.big_shop_backend.domain.repository.UserRepository;
 import com.esia.big_shop_backend.domain.service.UserDomainService;

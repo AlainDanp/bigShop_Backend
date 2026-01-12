@@ -1,13 +1,13 @@
-// java
 package com.esia.big_shop_backend.application.usecase.order;
 
+import com.esia.big_shop_backend.application.usecase.order.command.CreateOrderCommand;
 import com.esia.big_shop_backend.domain.entity.Order;
 import com.esia.big_shop_backend.domain.entity.OrderItem;
 import com.esia.big_shop_backend.domain.entity.Product;
 import com.esia.big_shop_backend.domain.repository.OrderRepository;
 import com.esia.big_shop_backend.domain.repository.ProductRepository;
+import com.esia.big_shop_backend.domain.service.OrderDomainService;
 import com.esia.big_shop_backend.domain.service.ProductDomainService;
-import com.esia.big_shop_backend.domain.valueobject.Money;
 import com.esia.big_shop_backend.domain.valueobject.PhoneNumber;
 import com.esia.big_shop_backend.domain.valueobject.ShippingInfo;
 import com.esia.big_shop_backend.domain.valueobject.enums.OrderStatus;
@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -28,12 +27,31 @@ public class CreateOrderUseCase {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final ProductDomainService productDomainService;
+    private final OrderDomainService orderDomainService;
 
     @Transactional
     public Order execute(CreateOrderCommand command) {
-        List<OrderItem> orderItems = new ArrayList<>();
-        int totalItems = 0;
-        int totalAmount = 0;
+        ShippingInfo shippingInfo = new ShippingInfo(
+                command.getShippingFullName(),
+                PhoneNumber.of(command.getShippingPhone()),
+                command.getShippingAddress()
+        );
+
+        String orderNumber = "ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+
+        // Create initial empty order
+        Order order = new Order(
+                null,
+                orderNumber,
+                UserId.of(command.getUserId()),
+                new ArrayList<>(),
+                OrderStatus.PENDING,
+                0,
+                0,
+                shippingInfo,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
 
         for (CreateOrderCommand.OrderItemDto itemDto : command.getItems()) {
             Product product = productRepository.findById(ProductId.of(itemDto.getProductId()))
@@ -50,7 +68,7 @@ public class CreateOrderUseCase {
             productDomainService.decreaseStock(product, itemDto.getQuantity());
             productRepository.save(product);
 
-            // Calcul du total pour cet item : multiply retourne un double -> on arrondit et convertit en int
+            // Calculate item total for the OrderItem record
             double itemTotalDouble = product.getPrice().multiply(itemDto.getQuantity()).getAmount();
             int itemTotalInt = (int) Math.round(itemTotalDouble);
 
@@ -63,33 +81,10 @@ public class CreateOrderUseCase {
                     itemTotalInt,
                     itemTotalDouble
             );
-            orderItems.add(orderItem);
 
-            totalItems += itemDto.getQuantity();
-            totalAmount += itemTotalInt;
+            // Use domain service to add item and recalculate order totals
+            orderDomainService.addItem(order, orderItem);
         }
-
-        ShippingInfo shippingInfo = new ShippingInfo(
-                command.getShippingFullName(),
-                PhoneNumber.of(command.getShippingPhone()),
-                command.getShippingAddress()
-        );
-
-        String orderNumber = "ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-
-        // Passer les totaux avant le ShippingInfo conformément à la signature du constructeur Order
-        Order order = new Order(
-                null,
-                orderNumber,
-                UserId.of(command.getUserId()),
-                orderItems,
-                OrderStatus.PENDING,
-                totalItems,
-                totalAmount,
-                shippingInfo,
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
 
         return orderRepository.save(order);
     }

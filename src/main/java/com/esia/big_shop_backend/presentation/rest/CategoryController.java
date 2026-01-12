@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/categories")
+@RequestMapping("/categories")
 @RequiredArgsConstructor
 @Tag(name = "Category", description = "Category management APIs")
 public class CategoryController {

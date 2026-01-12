@@ -1,6 +1,6 @@
 package com.esia.big_shop_backend.application.usecase.admin;
 
-import com.esia.big_shop_backend.application.usecase.admin.query.GetDashboardStatisticsQuery;
+import com.esia.big_shop_backend.application.usecase.admin.result.DashboardStatistics;
 import com.esia.big_shop_backend.domain.entity.Order;
 import com.esia.big_shop_backend.domain.entity.Product;
 import com.esia.big_shop_backend.domain.entity.User;
@@ -22,7 +22,7 @@ public class GetDashboardStatisticsUseCase {
     private final ProductRepository productRepository;
 
     @Transactional(readOnly = true)
-    public DashboardStatistics execute(GetDashboardStatisticsQuery query) {
+    public DashboardStatistics execute() {
         List<Order> allOrders = orderRepository.findAll(0, Integer.MAX_VALUE);
         long totalOrders = allOrders.size();
 

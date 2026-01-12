@@ -72,44 +72,29 @@ public class OrderDomainService {
             order.setItems(new ArrayList<>());
         }
         order.getItems().add(item);
+        recalculateTotals(order);
         order.setUpdatedAt(LocalDateTime.now());
     }
 
-    public void removeItem(Order order, OrderItem item) {
-        if (order.getItems() != null) {
-            order.getItems().remove(item);
-            order.setUpdatedAt(LocalDateTime.now());
+    private void recalculateTotals(Order order) {
+        if (order.getItems() == null || order.getItems().isEmpty()) {
+            order.setTotalItems(0);
+            order.setTotalAmount(0);
+            return;
         }
-    }
 
-    public boolean canBeCancelled(Order order) {
-        return order.getStatus() != OrderStatus.DELIVERED && order.getStatus() != OrderStatus.CANCELLED;
-    }
-
-    public boolean isInProgress(Order order) {
-        return order.getStatus() == OrderStatus.CONFIRMED
-                || order.getStatus() == OrderStatus.PROCESSING
-                || order.getStatus() == OrderStatus.SHIPPED;
-    }
-
-    public boolean isPending(Order order) {
-        return order.getStatus() == OrderStatus.PENDING;
-    }
-
-    public boolean isCompleted(Order order) {
-        return order.getStatus() == OrderStatus.DELIVERED;
-    }
-
-    public boolean isCancelled(Order order) {
-        return order.getStatus() == OrderStatus.CANCELLED;
-    }
-
-    public int getTotalItemsCount(Order order) {
-        if (order.getItems() == null) {
-            return 0;
-        }
-        return order.getItems().stream()
+        int totalItems = order.getItems().stream()
                 .mapToInt(OrderItem::getQuantity)
                 .sum();
+        order.setTotalItems(totalItems);
+
+        // Calculate total amount using Money logic then convert to int as per Entity definition
+        Money totalMoney = order.getItems().stream()
+                .map(item -> item.getUnitPrice().multiply(item.getQuantity()))
+                .reduce(Money.ZERO, Money::add);
+        
+        order.setTotalAmount((int) Math.round(totalMoney.getAmount()));
     }
+
+
 }
