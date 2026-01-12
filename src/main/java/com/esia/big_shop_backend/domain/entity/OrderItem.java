@@ -16,4 +16,6 @@ public class OrderItem {
     private final String productName; // Snapshot at time of order
     private final Money unitPrice; // Price at time of order
     private int quantity;
+    private int subtotal;
+    private double totalPrice;
 }

@@ -1,5 +1,6 @@
 package com.esia.big_shop_backend.application.usecase.user;
 
+import com.esia.big_shop_backend.domain.valueobject.Password;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -8,5 +9,5 @@ import lombok.Getter;
 public class ChangePasswordCommand {
     private final Long userId;
     private final String currentPassword;
-    private final String newPassword;
+    private final Password newPassword;
 }

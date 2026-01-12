@@ -9,13 +9,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Getter
 @AllArgsConstructor
 public class Password {
-    private final String hasedValue;
+    private final String value;
 
     public static Password fromPlainText(String plainText, PasswordEncoder encoder) {
         String hashed = encoder.encode(plainText);
         return new Password(hashed);
     }
     public boolean matches(String plainText, PasswordEncoder encoder) {
-        return encoder.matches(plainText, this.hasedValue);
+        return encoder.matches(plainText, this.value);
     }
 }

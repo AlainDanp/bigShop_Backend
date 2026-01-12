@@ -1,5 +1,6 @@
 package com.esia.big_shop_backend.application.usecase.user;
 
+import com.esia.big_shop_backend.application.usecase.user.command.AssignRoleCommand;
 import com.esia.big_shop_backend.domain.entity.User;
 import com.esia.big_shop_backend.domain.repository.UserRepository;
 import com.esia.big_shop_backend.domain.service.UserDomainService;
@@ -16,11 +17,11 @@ public class AssignRoleToUserUseCase {
     private final UserDomainService userDomainService;
 
     @Transactional
-    public User execute(Long userId, Long roleId) {
-        User user = userRepository.findById(UserId.of(userId))
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+    public User execute(AssignRoleCommand command) {
+        User user = userRepository.findById(UserId.of(command.getUserId()))
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + command.getUserId()));
 
-        userDomainService.addRole(user, RoleId.of(roleId));
+        userDomainService.addRole(user, RoleId.of(command.getRoleId()));
 
         return userRepository.save(user);
     }

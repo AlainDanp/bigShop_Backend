@@ -40,6 +40,12 @@ public class OrderJpaEntity {
     @Column(name = "shipping_address", nullable = false, columnDefinition = "TEXT")
     private String shippingAddress;
 
+    @Column(name = "total_items")
+    private Integer totalItems;
+
+    @Column(name = "total_amount")
+    private Integer totalAmount;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

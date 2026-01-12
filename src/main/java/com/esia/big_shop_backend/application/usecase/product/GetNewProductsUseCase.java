@@ -8,13 +8,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class GetNewProductsUseCase {
     private final ProductRepository productRepository;
 
     @Transactional(readOnly = true)
-    public Page<Product> execute(Pageable pageable) {
-        return productRepository.findNewProducts(pageable);
+    public List<Product> execute(int page, int size) {
+        return productRepository.findNewProducts(page, size);
     }
 }

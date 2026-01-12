@@ -1,5 +1,6 @@
 package com.esia.big_shop_backend.application.usecase.user;
 
+import com.esia.big_shop_backend.application.usecase.user.query.GetUserProfileQuery;
 import com.esia.big_shop_backend.domain.entity.User;
 import com.esia.big_shop_backend.domain.repository.UserRepository;
 import com.esia.big_shop_backend.domain.valueobject.ids.UserId;
@@ -13,8 +14,8 @@ public class GetUserProfileUseCase {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public User execute(Long userId) {
-        return userRepository.findById(UserId.of(userId))
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+    public User execute(GetUserProfileQuery query) {
+        return userRepository.findById(UserId.of(query.getUserId()))
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + query.getUserId()));
     }
 }

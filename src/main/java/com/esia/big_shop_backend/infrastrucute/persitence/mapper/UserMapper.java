@@ -2,6 +2,7 @@ package com.esia.big_shop_backend.infrastrucute.persitence.mapper;
 
 import com.esia.big_shop_backend.domain.entity.User;
 import com.esia.big_shop_backend.domain.valueobject.Email;
+import com.esia.big_shop_backend.domain.valueobject.Password;
 import com.esia.big_shop_backend.domain.valueobject.PersonalInfo;
 import com.esia.big_shop_backend.domain.valueobject.Username;
 import com.esia.big_shop_backend.domain.valueobject.ids.RoleId;
@@ -37,13 +38,20 @@ public class UserMapper {
                 .collect(Collectors.toSet())
                 : new HashSet<>();
 
+        Set<com.esia.big_shop_backend.domain.entity.Role> roles = entity.getRoles() != null
+                ? entity.getRoles().stream()
+                .map(roleMapper::toDomain)
+                .collect(Collectors.toSet())
+                : new HashSet<>();
+
         return new User(
                 entity.getId() != null ? UserId.of(entity.getId()) : null,
                 Username.of(entity.getUsername()),
                 new Email(entity.getEmail()),
-                entity.getPassword(),
+                new Password(entity.getPassword()),
                 personalInfo,
                 roleIds,
+                roles,
                 entity.getIsActive(),
                 entity.getEmailVerified(),
                 entity.getCreatedAt(),
@@ -58,7 +66,7 @@ public class UserMapper {
         entity.setId(domain.getId() != null ? domain.getId().getValue() : null);
         entity.setUsername(domain.getUsername().getValue());
         entity.setEmail(domain.getEmail().getValue());
-        entity.setPassword(domain.getPassword());
+        entity.setPassword(domain.getPassword().getValue());
 
         if (domain.getPersonalInfo() != null) {
             entity.setFirstName(domain.getPersonalInfo().getFirstName());
@@ -71,9 +79,6 @@ public class UserMapper {
         entity.setEmailVerified(domain.isEmailVerified());
         entity.setCreatedAt(domain.getCreatedAt());
         entity.setUpdatedAt(domain.getUpdatedAt());
-
-        // Note: Roles should be managed separately as it requires database lookup
-        // This will be handled in the repository implementation
         entity.setRoles(new HashSet<>());
 
         return entity;

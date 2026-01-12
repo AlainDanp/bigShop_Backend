@@ -2,6 +2,7 @@ package com.esia.big_shop_backend.domain.service;
 
 import com.esia.big_shop_backend.domain.entity.User;
 import com.esia.big_shop_backend.domain.valueobject.Email;
+import com.esia.big_shop_backend.domain.valueobject.Password;
 import com.esia.big_shop_backend.domain.valueobject.PersonalInfo;
 import com.esia.big_shop_backend.domain.valueobject.Username;
 import com.esia.big_shop_backend.domain.valueobject.ids.RoleId;
@@ -43,8 +44,8 @@ public class UserDomainService {
         user.setUpdatedAt(LocalDateTime.now());
     }
 
-    public void changePassword(User user, String newHashedPassword) {
-        if (newHashedPassword == null || newHashedPassword.isBlank()) {
+    public void changePassword(User user, Password newHashedPassword) {
+        if (newHashedPassword == null || newHashedPassword.getValue().isEmpty()) {
             throw new IllegalArgumentException("Password cannot be empty");
         }
         user.setPassword(newHashedPassword);

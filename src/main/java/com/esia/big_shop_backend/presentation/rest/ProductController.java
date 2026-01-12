@@ -1,6 +1,9 @@
 package com.esia.big_shop_backend.presentation.rest;
 
 import com.esia.big_shop_backend.application.usecase.product.*;
+import com.esia.big_shop_backend.application.usecase.product.command.DeleteProductCommand;
+import com.esia.big_shop_backend.application.usecase.product.query.GetAllProductsQuery;
+import com.esia.big_shop_backend.application.usecase.product.query.GetProductQuery;
 import com.esia.big_shop_backend.domain.entity.Product;
 import com.esia.big_shop_backend.presentation.dto.response.product.ProductResponse;
 import com.esia.big_shop_backend.presentation.dto.request.product.UpdateProductRequest;
@@ -44,13 +47,20 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> getProduct(@PathVariable Long id) {
-        Product product = getProductUseCase.execute(id);
+        GetProductQuery query = new GetProductQuery(id);
+        Product product = getProductUseCase.execute(query.getProductId());
         return ResponseEntity.ok(mapper.toResponse(product));
     }
 
     @GetMapping
     public ResponseEntity<Page<ProductResponse>> getAllProducts(Pageable pageable) {
-        Page<Product> products = getAllProductsUseCase.execute(pageable);
+        GetAllProductsQuery query = new GetAllProductsQuery(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                pageable.getSort().toString(),
+                "ASC"
+        );
+        Page<Product> products = (Page<Product>) getAllProductsUseCase.execute(query);
         Page<ProductResponse> response = products.map(mapper::toResponse);
         return ResponseEntity.ok(response);
     }
@@ -69,7 +79,8 @@ public class ProductController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
-        deleteProductUseCase.execute(id);
+        DeleteProductCommand command = new DeleteProductCommand(id);
+        deleteProductUseCase.execute(command.getProductId());
         return ResponseEntity.noContent().build();
     }
 }

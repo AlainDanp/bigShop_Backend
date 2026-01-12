@@ -1,16 +1,18 @@
 package com.esia.big_shop_backend.application.usecase.admin;
 
+import com.esia.big_shop_backend.application.usecase.admin.query.GetDashboardStatisticsQuery;
 import com.esia.big_shop_backend.domain.entity.Order;
+import com.esia.big_shop_backend.domain.entity.Product;
+import com.esia.big_shop_backend.domain.entity.User;
 import com.esia.big_shop_backend.domain.repository.OrderRepository;
 import com.esia.big_shop_backend.domain.repository.ProductRepository;
 import com.esia.big_shop_backend.domain.repository.UserRepository;
-import com.esia.big_shop_backend.domain.service.OrderDomainService;
 import com.esia.big_shop_backend.domain.valueobject.enums.OrderStatus;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -20,32 +22,27 @@ public class GetDashboardStatisticsUseCase {
     private final ProductRepository productRepository;
 
     @Transactional(readOnly = true)
-    public DashboardStatistics execute() {
-        // Get all orders to calculate statistics
-        Page<Order> allOrders = orderRepository.findAll(Pageable.unpaged());
-        long totalOrders = allOrders.getTotalElements();
+    public DashboardStatistics execute(GetDashboardStatisticsQuery query) {
+        List<Order> allOrders = orderRepository.findAll(0, Integer.MAX_VALUE);
+        long totalOrders = allOrders.size();
 
-        // Count pending orders
-        long pendingOrders = allOrders.getContent().stream()
+        long pendingOrders = allOrders.stream()
                 .filter(order -> order.getStatus() == OrderStatus.PENDING)
                 .count();
 
-        // Calculate total revenue from delivered orders
-        double totalRevenue = allOrders.getContent().stream()
+        double totalRevenue = allOrders.stream()
                 .filter(order -> order.getStatus() == OrderStatus.DELIVERED)
-                .mapToDouble(order -> order.getTotalAmount().getAmount())
+                .mapToDouble(order -> order.getTotalAmount())
                 .sum();
 
-        // Get user statistics
-        Page<com.esia.big_shop_backend.domain.entity.User> allUsers = userRepository.findAll(Pageable.unpaged());
-        long totalUsers = allUsers.getTotalElements();
-        long activeUsers = allUsers.getContent().stream()
-                .filter(com.esia.big_shop_backend.domain.entity.User::isActive)
+        List<User> allUsers = userRepository.findAll(0, Integer.MAX_VALUE);
+        long totalUsers = allUsers.size();
+        long activeUsers = allUsers.stream()
+                .filter(User::isActive)
                 .count();
 
-        // Get product statistics
-        Page<com.esia.big_shop_backend.domain.entity.Product> allProducts = productRepository.findAll(Pageable.unpaged());
-        long totalProducts = allProducts.getTotalElements();
+        List<Product> allProducts = productRepository.findAll(0, Integer.MAX_VALUE);
+        long totalProducts = allProducts.size();
 
         return new DashboardStatistics(
                 totalOrders,

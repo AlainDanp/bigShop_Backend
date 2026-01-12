@@ -3,8 +3,6 @@ package com.esia.big_shop_backend.application.usecase.admin;
 import com.esia.big_shop_backend.domain.entity.User;
 import com.esia.big_shop_backend.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,10 +19,8 @@ public class GetUserGrowthStatisticsUseCase {
 
     @Transactional(readOnly = true)
     public UserGrowthStatistics execute() {
-        Page<User> allUsersPage = userRepository.findAll(Pageable.unpaged());
-        List<User> allUsers = allUsersPage.getContent();
-
-        long totalUsers = allUsersPage.getTotalElements();
+        List<User> allUsers = userRepository.findAll(0, Integer.MAX_VALUE);
+        long totalUsers = allUsers.size();
 
         // Count active users
         long activeUsers = allUsers.stream()

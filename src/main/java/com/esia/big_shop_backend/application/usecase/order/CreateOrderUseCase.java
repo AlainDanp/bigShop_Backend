@@ -1,3 +1,4 @@
+// java
 package com.esia.big_shop_backend.application.usecase.order;
 
 import com.esia.big_shop_backend.domain.entity.Order;
@@ -30,8 +31,10 @@ public class CreateOrderUseCase {
 
     @Transactional
     public Order execute(CreateOrderCommand command) {
-        // Create order items
         List<OrderItem> orderItems = new ArrayList<>();
+        int totalItems = 0;
+        int totalAmount = 0;
+
         for (CreateOrderCommand.OrderItemDto itemDto : command.getItems()) {
             Product product = productRepository.findById(ProductId.of(itemDto.getProductId()))
                     .orElseThrow(() -> new IllegalArgumentException("Product not found with id: " + itemDto.getProductId()));
@@ -44,38 +47,45 @@ public class CreateOrderUseCase {
                 throw new IllegalStateException("Not enough stock for product: " + product.getName());
             }
 
-            // Decrease stock
             productDomainService.decreaseStock(product, itemDto.getQuantity());
             productRepository.save(product);
 
-            // Create order item with snapshot of product info
+            // Calcul du total pour cet item : multiply retourne un double -> on arrondit et convertit en int
+            double itemTotalDouble = product.getPrice().multiply(itemDto.getQuantity()).getAmount();
+            int itemTotalInt = (int) Math.round(itemTotalDouble);
+
             OrderItem orderItem = new OrderItem(
                     null,
                     product.getId(),
                     product.getName(),
-                    productDomainService.getEffectivePrice(product),
-                    itemDto.getQuantity()
+                    product.getPrice(),
+                    itemDto.getQuantity(),
+                    itemTotalInt,
+                    itemTotalDouble
             );
             orderItems.add(orderItem);
+
+            totalItems += itemDto.getQuantity();
+            totalAmount += itemTotalInt;
         }
 
-        // Create shipping info
         ShippingInfo shippingInfo = new ShippingInfo(
                 command.getShippingFullName(),
                 PhoneNumber.of(command.getShippingPhone()),
                 command.getShippingAddress()
         );
 
-        // Generate order number
         String orderNumber = "ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 
-        // Create order
+        // Passer les totaux avant le ShippingInfo conformément à la signature du constructeur Order
         Order order = new Order(
                 null,
                 orderNumber,
                 UserId.of(command.getUserId()),
                 orderItems,
                 OrderStatus.PENDING,
+                totalItems,
+                totalAmount,
                 shippingInfo,
                 LocalDateTime.now(),
                 LocalDateTime.now()

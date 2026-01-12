@@ -7,9 +7,11 @@ import com.esia.big_shop_backend.domain.entity.Product;
 import com.esia.big_shop_backend.presentation.dto.request.product.CreateProductRequest;
 import com.esia.big_shop_backend.presentation.dto.request.product.UpdateProductRequest;
 import com.esia.big_shop_backend.presentation.dto.response.product.ProductResponse;
+import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@NoArgsConstructor
 public class ProductRestMapper {
 
     public CreateProductCommand toCommand(CreateProductRequest request) {
@@ -41,11 +43,12 @@ public class ProductRestMapper {
                 product.getName(),
                 product.getDescription(),
                 product.getPrice().getAmount(),
-                product.getDiscountPrice() = null ? product.getDiscountPrice().getAmount() : null,
+                product.getDiscountPrice() != null ? product.getDiscountPrice().getAmount() : null,
                 product.getStockQuantity(),
                 product.getCategoryId().getValue(),
-                null, // categoryName - à récupérer si nécessaire
-                product.isActive()
+                null,
+                product.isActive(),
+                product.getDiscountPrice() != null  // hasDiscount
         );
 
     }

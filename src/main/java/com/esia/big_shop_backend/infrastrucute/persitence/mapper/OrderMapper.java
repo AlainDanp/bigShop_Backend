@@ -42,6 +42,8 @@ public class OrderMapper {
                 UserId.of(entity.getUserId()),
                 items,
                 mapToDomainStatus(entity.getStatus()),
+                entity.getTotalItems() != null ? entity.getTotalItems() : 0,
+                entity.getTotalAmount() != null ? entity.getTotalAmount() : 0,
                 shippingInfo,
                 entity.getCreatedAt(),
                 entity.getUpdatedAt()
@@ -62,6 +64,9 @@ public class OrderMapper {
             entity.setShippingPhone(domain.getShippingInfo().getPhoneNumber().getValue());
             entity.setShippingAddress(domain.getShippingInfo().getAddressText());
         }
+
+        entity.setTotalItems(domain.getTotalItems());
+        entity.setTotalAmount(domain.getTotalAmount());
 
         entity.setCreatedAt(domain.getCreatedAt());
         entity.setUpdatedAt(domain.getUpdatedAt());

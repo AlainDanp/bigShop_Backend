@@ -5,6 +5,7 @@ import com.esia.big_shop_backend.application.usecase.user.command.ChangePassword
 import com.esia.big_shop_backend.domain.entity.User;
 import com.esia.big_shop_backend.domain.repository.UserRepository;
 import com.esia.big_shop_backend.domain.service.UserDomainService;
+import com.esia.big_shop_backend.domain.valueobject.Password;
 import com.esia.big_shop_backend.domain.valueobject.ids.UserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class ChangePasswordUseCase {
                 .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + command.getUserId()));
 
         // Verify current password
-        if (!passwordEncoder.matches(command.getCurrentPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(command.getCurrentPassword(), user.getPassword().getValue())) {
             throw new IllegalArgumentException("Current password is incorrect");
         }
 
@@ -33,7 +34,7 @@ public class ChangePasswordUseCase {
         }
 
         // Change password
-        String hashedPassword = passwordEncoder.encode(command.getNewPassword());
+        Password hashedPassword = new Password(passwordEncoder.encode(command.getNewPassword()));
         userDomainService.changePassword(user, hashedPassword);
 
         userRepository.save(user);

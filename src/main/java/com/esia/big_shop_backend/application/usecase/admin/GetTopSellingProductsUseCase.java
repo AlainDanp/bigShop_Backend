@@ -1,16 +1,14 @@
 package com.esia.big_shop_backend.application.usecase.admin;
 
+import com.esia.big_shop_backend.application.usecase.admin.query.GetTopSellingProductsQuery;
 import com.esia.big_shop_backend.domain.entity.Order;
 import com.esia.big_shop_backend.domain.entity.OrderItem;
 import com.esia.big_shop_backend.domain.repository.OrderRepository;
 import com.esia.big_shop_backend.domain.valueobject.enums.OrderStatus;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,10 +20,10 @@ public class GetTopSellingProductsUseCase {
     private final OrderRepository orderRepository;
 
     @Transactional(readOnly = true)
-    public List<TopProductStatistic> execute(int limit) {
+    public List<TopProductStatistic> execute(GetTopSellingProductsQuery query) {
         // Get all delivered orders
-        Page<Order> allOrders = orderRepository.findAll(Pageable.unpaged());
-        List<Order> deliveredOrders = allOrders.getContent().stream()
+        List<Order> allOrders = orderRepository.findAll(0, Integer.MAX_VALUE);
+        List<Order> deliveredOrders = allOrders.stream()
                 .filter(order -> order.getStatus() == OrderStatus.DELIVERED)
                 .collect(Collectors.toList());
 
@@ -39,7 +37,7 @@ public class GetTopSellingProductsUseCase {
 
                 ProductSalesData data = productSalesMap.get(productId);
                 data.totalSold += item.getQuantity();
-                data.revenue += item.getSubtotal().getAmount();
+                data.revenue += item.getSubtotal();
             }
         }
 
@@ -52,7 +50,7 @@ public class GetTopSellingProductsUseCase {
                         entry.getValue().revenue
                 ))
                 .sorted((a, b) -> Integer.compare(b.getTotalSold(), a.getTotalSold()))
-                .limit(limit)
+                .limit(query.getLimit())
                 .collect(Collectors.toList());
     }
 

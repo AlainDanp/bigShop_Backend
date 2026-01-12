@@ -34,7 +34,12 @@ public class OrderItemJpaEntity {
     @Column(nullable = false)
     private Integer quantity;
 
+    @Column(nullable = false)
+    private Double totalPrice;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", insertable = false, updatable = false)
     private OrderJpaEntity order;
+
+
 }

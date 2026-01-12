@@ -1,5 +1,6 @@
 package com.esia.big_shop_backend.application.usecase.order;
 
+import com.esia.big_shop_backend.application.usecase.order.command.ConfirmOrderCommand;
 import com.esia.big_shop_backend.domain.entity.Order;
 import com.esia.big_shop_backend.domain.repository.OrderRepository;
 import com.esia.big_shop_backend.domain.service.OrderDomainService;
@@ -15,9 +16,9 @@ public class ConfirmOrderUseCase {
     private final OrderDomainService orderDomainService;
 
     @Transactional
-    public Order execute(Long orderId) {
-        Order order = orderRepository.findById(OrderId.of(orderId))
-                .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + orderId));
+    public Order execute(ConfirmOrderCommand command) {
+        Order order = orderRepository.findById(OrderId.of(command.getOrderId()))
+                .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + command.getOrderId()));
 
         orderDomainService.confirm(order);
 

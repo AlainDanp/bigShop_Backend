@@ -1,5 +1,6 @@
 package com.esia.big_shop_backend.application.usecase.user;
 
+import com.esia.big_shop_backend.application.usecase.user.command.UpdateAvatarCommand;
 import com.esia.big_shop_backend.domain.entity.User;
 import com.esia.big_shop_backend.domain.repository.UserRepository;
 import com.esia.big_shop_backend.domain.service.UserDomainService;
@@ -15,15 +16,15 @@ public class UpdateAvatarUseCase {
     private final UserDomainService userDomainService;
 
     @Transactional
-    public User execute(Long userId, String avatarUrl) {
-        User user = userRepository.findById(UserId.of(userId))
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+    public User execute(UpdateAvatarCommand command) {
+        User user = userRepository.findById(UserId.of(command.getUserId()))
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + command.getUserId()));
 
-        if (avatarUrl == null || avatarUrl.isBlank()) {
+        if (command.getAvatarUrl() == null || command.getAvatarUrl().isBlank()) {
             throw new IllegalArgumentException("Avatar URL cannot be empty");
         }
 
-        userDomainService.updateAvatar(user, avatarUrl);
+        userDomainService.updateAvatar(user, command.getAvatarUrl());
 
         return userRepository.save(user);
     }
