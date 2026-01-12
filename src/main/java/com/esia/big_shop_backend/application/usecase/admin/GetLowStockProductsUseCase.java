@@ -1,6 +1,5 @@
 package com.esia.big_shop_backend.application.usecase.admin;
 
-import com.esia.big_shop_backend.application.usecase.admin.query.GetLowStockProductsQuery;
 import com.esia.big_shop_backend.domain.entity.Product;
 import com.esia.big_shop_backend.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +15,7 @@ public class GetLowStockProductsUseCase {
     private final ProductRepository productRepository;
 
     @Transactional(readOnly = true)
-    public List<Product> execute(GetLowStockProductsQuery query) {
+    public List<Product> execute(int query) {
         List<Product> allProducts = productRepository.findAll(query.getPage(), query.getSize());
 
         return allProducts.stream()
