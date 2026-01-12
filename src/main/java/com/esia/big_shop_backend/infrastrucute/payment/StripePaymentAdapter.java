@@ -1,51 +1,81 @@
 package com.esia.big_shop_backend.infrastrucute.payment;
 
-import com.esia.big_shop_backend.application.port.output.PaymentPort;
-import com.esia.big_shop_backend.domain.valueobject.Money;
-import com.esia.big_shop_backend.domain.valueobject.enums.PaymentMethod;
-import lombok.extern.slf4j.Slf4j;
+import com.esia.big_shop_backend.application.port.output.StripePaymentPort;
+import com.stripe.Stripe;
+import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
+import com.stripe.model.Refund;
+import com.stripe.param.PaymentIntentCreateParams;
+import com.stripe.param.RefundCreateParams;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
+import java.math.BigDecimal;
 
 @Service
-@Slf4j
-public class StripePaymentAdapter implements PaymentPort {
+@RequiredArgsConstructor
+public class StripePaymentAdapter implements StripePaymentPort {
 
-    @Value("${stripe.api.key:}")
-    private String stripeApiKey;
+    @Value("${stripe.secret-key:}")
+    private String secretKey;
 
-    @Override
-    public String processPayment(Money amount, PaymentMethod method, String customerInfo) {
-        // TODO: Integrate with real Stripe API
-        log.info("Processing Stripe payment: {} {} for customer: {}",
-                amount.getAmount(), amount.getCurrency(), customerInfo);
-
-        // Mock payment processing
-        String paymentId = "stripe_" + UUID.randomUUID().toString();
-        log.info("Payment processed successfully with ID: {}", paymentId);
-        return paymentId;
+    @PostConstruct
+    public void init() {
+        if (secretKey != null && !secretKey.isBlank()) {
+            Stripe.apiKey = secretKey;
+        }
     }
 
     @Override
-    public boolean verifyPayment(String paymentId) {
-        // TODO: Verify with real Stripe API
-        log.info("Verifying Stripe payment: {}", paymentId);
-        return paymentId.startsWith("stripe_");
+    public CreateIntentResult createPaymentIntent(BigDecimal amount, String currency, String description) {
+        try {
+            long amountInCents = amount.movePointRight(2).longValueExact();
+
+            PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
+                    .setAmount(amountInCents)
+                    .setCurrency(currency.toLowerCase())
+                    .setDescription(description)
+                    .setAutomaticPaymentMethods(
+                            PaymentIntentCreateParams.AutomaticPaymentMethods.builder().setEnabled(true).build()
+                    )
+                    .build();
+
+            PaymentIntent intent = PaymentIntent.create(params);
+            return new CreateIntentResult(intent.getId(), intent.getClientSecret());
+        } catch (StripeException e) {
+            throw new IllegalArgumentException("Stripe create intent failed: " + e.getMessage(), e);
+        }
     }
 
     @Override
-    public void refundPayment(String paymentId, Money amount) {
-        // TODO: Implement Stripe refund
-        log.info("Refunding Stripe payment: {} with amount: {} {}",
-                paymentId, amount.getAmount(), amount.getCurrency());
+    public void confirmPaymentIntent(String paymentIntentId) {
     }
 
     @Override
-    public String getPaymentStatus(String paymentId) {
-        // TODO: Get real status from Stripe API
-        log.info("Getting Stripe payment status: {}", paymentId);
-        return "COMPLETED";
+    public void refund(String paymentIntentId) {
+        try {
+            RefundCreateParams params = RefundCreateParams.builder()
+                    .setPaymentIntent(paymentIntentId)
+                    .build();
+            Refund.create(params);
+        } catch (StripeException e) {
+            throw new IllegalArgumentException("Stripe refund failed: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public String getStatus(String paymentIntentId) {
+        try {
+            PaymentIntent intent = PaymentIntent.retrieve(paymentIntentId);
+            return intent.getStatus();
+        } catch (StripeException e) {
+            throw new IllegalArgumentException("Stripe get status failed: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void handleWebhook(String payload, String signatureHeader) {
     }
 }
