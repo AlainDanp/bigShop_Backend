@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -File:*)",
+      "Bash(dir /s /B \"C:\\\\Users\\\\alain\\\\OneDrive\\\\Documents\\\\X4\\(ESIEA\\)\\\\architecture application\\\\Backend\\\\big_shop_backend\\\\src\\\\main\\\\java\\\\com\\\\esia\\\\big_shop_backend\")"
+    ]
+  }
+}

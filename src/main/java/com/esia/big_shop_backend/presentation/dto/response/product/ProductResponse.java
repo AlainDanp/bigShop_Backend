@@ -2,9 +2,11 @@ package com.esia.big_shop_backend.presentation.dto.response.product;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class ProductResponse {
     private Long id;
     private String name;

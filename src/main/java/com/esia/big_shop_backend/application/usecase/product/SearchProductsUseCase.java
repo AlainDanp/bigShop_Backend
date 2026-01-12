@@ -8,16 +8,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class SearchProductsUseCase {
     private final ProductRepository productRepository;
 
     @Transactional(readOnly = true)
-    public Page<Product> execute(String keyword, Pageable pageable) {
+    public List<Product> execute(String keyword, int page , int size) {
         if (keyword == null || keyword.isBlank()) {
             throw new IllegalArgumentException("Search keyword cannot be empty");
         }
-        return productRepository.searchProducts(keyword, pageable);
+        return productRepository.searchProducts(keyword, page, size);
     }
 }

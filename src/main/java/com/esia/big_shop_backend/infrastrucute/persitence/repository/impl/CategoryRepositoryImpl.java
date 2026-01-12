@@ -7,11 +7,13 @@ import com.esia.big_shop_backend.infrastrucute.persitence.entity.CategoryJpaEnti
 import com.esia.big_shop_backend.infrastrucute.persitence.mapper.CategoryMapper;
 import com.esia.big_shop_backend.infrastrucute.persitence.repository.jpa.CategoryJpaRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -34,9 +36,12 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     }
 
     @Override
-    public Page<Category> findAll(Pageable pageable) {
+    public List<Category> findAll(int page) {
+        Pageable pageable = PageRequest.of(page, 20);
         return jpaRepository.findAll(pageable)
-                .map(mapper::toDomain);
+                .stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override

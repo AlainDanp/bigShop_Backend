@@ -8,11 +8,13 @@ import com.esia.big_shop_backend.infrastrucute.persitence.entity.ProductJpaEntit
 import com.esia.big_shop_backend.infrastrucute.persitence.mapper.ProductMapper;
 import com.esia.big_shop_backend.infrastrucute.persitence.repository.jpa.ProductJpaRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -35,39 +37,57 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
-    public Page<Product> findAll(Pageable pageable) {
+    public List<Product> findAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
         return jpaRepository.findAll(pageable)
-                .map(mapper::toDomain);
+                .stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Page<Product> findByCategory(CategoryId categoryId, Pageable pageable) {
+    public List<Product> findByCategory(CategoryId categoryId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
         return jpaRepository.findByCategoryId(categoryId.getValue(), pageable)
-                .map(mapper::toDomain);
+                .stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Page<Product> findActiveProducts(Pageable pageable) {
+    public List<Product> findActiveProducts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
         return jpaRepository.findByIsActive(true, pageable)
-                .map(mapper::toDomain);
+                .stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Page<Product> findProductsOnSale(Pageable pageable) {
+    public List<Product> findProductsOnSale(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
         return jpaRepository.findProductsOnSale(pageable)
-                .map(mapper::toDomain);
+                .stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Page<Product> findNewProducts(Pageable pageable) {
+    public List<Product> findNewProducts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
         return jpaRepository.findNewProducts(pageable)
-                .map(mapper::toDomain);
+                .stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Page<Product> searchProducts(String keyword, Pageable pageable) {
+    public List<Product> searchProducts(String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
         return jpaRepository.searchProducts(keyword, pageable)
-                .map(mapper::toDomain);
+                .stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override

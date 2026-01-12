@@ -11,4 +11,6 @@ public class UpdateProductRequest {
     private Double price;
     private Integer stock;
     private Long categoryId;
+    private Double discountPrice;
+    private Integer stockQuantity;
 }

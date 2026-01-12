@@ -2,8 +2,10 @@ package com.esia.big_shop_backend.domain.valueobject;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @EqualsAndHashCode
 public class Money {
     public static final Money ZERO = new Money(0, "XAF");

@@ -1,5 +1,6 @@
 package com.esia.big_shop_backend.application.usecase.product;
 
+import com.esia.big_shop_backend.application.usecase.product.command.UpdateProductStockCommand;
 import com.esia.big_shop_backend.domain.entity.Product;
 import com.esia.big_shop_backend.domain.repository.ProductRepository;
 import com.esia.big_shop_backend.domain.service.ProductDomainService;
@@ -15,19 +16,15 @@ public class UpdateProductStockUseCase {
     private final ProductDomainService productDomainService;
 
     @Transactional
-    public Product execute(Long productId, int quantity, StockOperation operation) {
-        Product product = productRepository.findById(ProductId.of(productId))
-                .orElseThrow(() -> new IllegalArgumentException("Product not found with id: " + productId));
+    public Product execute(UpdateProductStockCommand command) {
+        Product product = productRepository.findById(ProductId.of(command.getProductId()))
+                .orElseThrow(() -> new IllegalArgumentException("Product not found with id: " + command.getProductId()));
 
-        switch (operation) {
-            case INCREASE -> productDomainService.increaseStock(product, quantity);
-            case DECREASE -> productDomainService.decreaseStock(product, quantity);
+        switch (command.getOperation()) {
+            case INCREASE -> productDomainService.increaseStock(product, command.getQuantity());
+            case DECREASE -> productDomainService.decreaseStock(product, command.getQuantity());
         }
 
         return productRepository.save(product);
-    }
-
-    public enum StockOperation {
-        INCREASE, DECREASE
     }
 }

@@ -6,6 +6,7 @@ import com.esia.big_shop_backend.domain.valueobject.ids.OrderId;
 import com.esia.big_shop_backend.domain.valueobject.ids.UserId;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -20,6 +21,8 @@ public class Order {
     private final UserId userId;
     private List<OrderItem> items;
     private OrderStatus status;
+    private int totalItems;
+    private int totalAmount;
     private final ShippingInfo shippingInfo;
     private final LocalDateTime createdAt;
     private LocalDateTime updatedAt;
