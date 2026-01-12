@@ -12,9 +12,13 @@ public interface AddressRepository {
 
     List<Address> findAllByUserId(Long userId);
 
+    List<Address> findById(Long userId);
+
     Optional<Address> findDefaultByUserId(Long userId);
 
     void unsetDefaultForUser(Long userId);
+
+    void deleteById(Long userId);
 
     void deleteByIdAndUserId(Long id, Long userId);
 }
