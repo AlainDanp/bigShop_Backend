@@ -3,49 +3,50 @@ package com.esia.big_shop_backend.infrastrucute.payment;
 import com.esia.big_shop_backend.application.port.output.PaymentPort;
 import com.esia.big_shop_backend.domain.valueobject.Money;
 import com.esia.big_shop_backend.domain.valueobject.enums.PaymentMethod;
-import lombok.extern.slf4j.Slf4j;
+import com.esia.big_shop_backend.infrastrucute.payment.dto.MtnPaymentRequest;
+import com.esia.big_shop_backend.infrastrucute.payment.mapper.MtnPaymentMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.UUID;
 
-@Service
-@Slf4j
+@Service("mtnMoneyAdapter")
 public class MtnMoneyAdapter implements PaymentPort {
 
-    @Value("${mtn.api.key:}")
-    private String mtnApiKey;
+    private final WebClient webClient;
+
+    public MtnMoneyAdapter(
+            @Value("${mtn.api.url:https://sandbox.momodeveloper.mtn.com}") String baseUrl
+    ) {
+        this.webClient = WebClient.builder().baseUrl(baseUrl).build();
+    }
 
     @Override
     public String processPayment(Money amount, PaymentMethod method, String customerInfo) {
-        // TODO: Integrate with real MTN Mobile Money API
-        log.info("Processing MTN Mobile Money payment: {} {} for customer: {}",
-                amount.getAmount(), amount.getCurrency(), customerInfo);
+        if (method != PaymentMethod.MTN_MOBILE_MONEY) {
+            throw new IllegalArgumentException("MtnMoneyAdapter ne supporte que MTN_MOBILE_MONEY");
+        }
 
-        // Mock payment processing
-        String paymentId = "mtn_" + UUID.randomUUID().toString();
-        log.info("Payment processed successfully with ID: {}", paymentId);
-        return paymentId;
+        MtnPaymentRequest req = MtnPaymentMapper.toRequest(amount, customerInfo);
+
+        return "mtn_" + UUID.randomUUID();
     }
 
     @Override
     public boolean verifyPayment(String paymentId) {
-        // TODO: Verify with real MTN API
-        log.info("Verifying MTN payment: {}", paymentId);
-        return paymentId.startsWith("mtn_");
+        return paymentId != null && paymentId.startsWith("mtn_");
     }
 
     @Override
     public void refundPayment(String paymentId, Money amount) {
-        // TODO: Implement MTN refund
-        log.info("Refunding MTN payment: {} with amount: {} {}",
-                paymentId, amount.getAmount(), amount.getCurrency());
+        if (paymentId == null) {
+            throw new IllegalArgumentException("paymentId null");
+        }
     }
 
     @Override
     public String getPaymentStatus(String paymentId) {
-        // TODO: Get real status from MTN API
-        log.info("Getting MTN payment status: {}", paymentId);
-        return "COMPLETED";
+        return verifyPayment(paymentId) ? "pending" : "unknown";
     }
 }

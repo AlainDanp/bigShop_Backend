@@ -1,4 +1,7 @@
 package com.esia.big_shop_backend.infrastrucute.payment.dto;
 
-public class MtnPaymentRequest {
-}
+public record MtnPaymentRequest(
+        String amount,
+        String currency,
+        String customerInfo
+) {}
