@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/payment")
+@RequestMapping("/payment")
 @RequiredArgsConstructor
 public class PaymentController {
 
@@ -27,7 +27,7 @@ public class PaymentController {
 
     private final PaymentRestMapper mapper = new PaymentRestMapper();
 
-    @PostMapping("/create-intent")
+    @PostMapping("/intent")
     public ResponseEntity<PaymentResponse> createStripeIntent(@RequestBody @Valid StripePaymentRequest req,
                                                               Principal principal) {
         var intent = processStripePaymentUseCase.execute(ProcessStripePaymentCommand.builder()
@@ -49,7 +49,6 @@ public class PaymentController {
 
     @PostMapping("/confirm/{paymentIntentId}")
     public ResponseEntity<Map<String, String>> confirmStripe(@PathVariable String paymentIntentId) {
-        // (confirm généralement côté client) — endpoint conservé si ton front l'appelle
         Map<String, String> response = new HashMap<>();
         response.put("status", "ok");
         response.put("paymentIntentId", paymentIntentId);
@@ -74,13 +73,11 @@ public class PaymentController {
     @PostMapping("/webhook")
     public ResponseEntity<Map<String, String>> webhook(@RequestBody String payload,
                                                        @RequestHeader(name = "Stripe-Signature", required = false) String sig) {
-        // Si tu veux brancher webhook: StripePaymentAdapter.handleWebhook(...)
         Map<String, String> response = new HashMap<>();
         response.put("status", "success");
         return ResponseEntity.ok(response);
     }
 
-    // BONUS: endpoints mobile money si tu veux les garder ici (sinon tu as MobilePaymentController)
     @PostMapping("/mtn")
     public ResponseEntity<PaymentResponse> payMtn(@RequestBody @Valid MtnPaymentRequest req, Principal principal) {
         var payment = processMtnPaymentUseCase.execute(ProcessMtnPaymentCommand.builder()
