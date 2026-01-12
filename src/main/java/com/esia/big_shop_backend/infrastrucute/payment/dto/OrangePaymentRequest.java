@@ -1,4 +1,7 @@
 package com.esia.big_shop_backend.infrastrucute.payment.dto;
 
-public class OrangePaymentRequest {
-}
+public record OrangePaymentRequest(
+        String amount,
+        String currency,
+        String customerInfo
+) {}

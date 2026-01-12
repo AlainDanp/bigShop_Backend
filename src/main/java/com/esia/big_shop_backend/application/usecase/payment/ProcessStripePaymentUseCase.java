@@ -20,14 +20,19 @@ public class ProcessStripePaymentUseCase {
     public StripePaymentPort.CreateIntentResult execute(ProcessStripePaymentCommand cmd) {
         Long userId = currentUserPort.getUserIdByEmail(cmd.getUserEmail());
 
+        String currency = cmd.getCurrency();
+        if (currency == null || currency.isEmpty()) {
+            currency = "EUR";
+        }
+
         StripePaymentPort.CreateIntentResult intent =
-                stripePaymentPort.createPaymentIntent(cmd.getAmount(), cmd.getCurrency(), cmd.getDescription());
+                stripePaymentPort.createPaymentIntent(cmd.getAmount(), currency, cmd.getDescription());
 
         Payment payment = Payment.builder()
                 .orderId(cmd.getOrderId())
                 .userId(userId)
                 .amount(cmd.getAmount())
-                .currency(cmd.getCurrency())
+                .currency(currency)
                 .provider("STRIPE")
                 .providerRef(intent.paymentIntentId())
                 .status(PaymentStatus.PENDING)

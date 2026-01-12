@@ -13,6 +13,9 @@ public class ProcessStripePaymentCommand {
     private Long orderId;
 
     private BigDecimal amount;
-    private String currency;
+    
+    @Builder.Default
+    private String currency = "EUR";
+
     private String description;
 }

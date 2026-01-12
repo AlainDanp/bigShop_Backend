@@ -1,6 +1,10 @@
 package com.esia.big_shop_backend.infrastrucute.payment;
 
-import com.esia.big_shop_backend.application.port.output.StripePaymentPort;
+import com.esia.big_shop_backend.application.port.output.PaymentPort;
+import com.esia.big_shop_backend.domain.valueobject.Money;
+import com.esia.big_shop_backend.domain.valueobject.enums.PaymentMethod;
+import com.esia.big_shop_backend.infrastrucute.payment.mapper.StripePaymentMapper;
+import com.esia.big_shop_backend.infrastrucute.payment.dto.StripePaymentRequest;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
@@ -8,74 +12,77 @@ import com.stripe.model.Refund;
 import com.stripe.param.PaymentIntentCreateParams;
 import com.stripe.param.RefundCreateParams;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
+@Service("stripePaymentAdapter")
+public class StripePaymentAdapter implements PaymentPort {
 
-@Service
-@RequiredArgsConstructor
-public class StripePaymentAdapter implements StripePaymentPort {
-
-    @Value("${stripe.secret-key:}")
-    private String secretKey;
+    @Value("${stripe.api.key:}")
+    private String stripeApiKey;
 
     @PostConstruct
-    public void init() {
-        if (secretKey != null && !secretKey.isBlank()) {
-            Stripe.apiKey = secretKey;
+    void init() {
+        if (stripeApiKey != null && !stripeApiKey.isBlank()) {
+            Stripe.apiKey = stripeApiKey;
         }
     }
 
     @Override
-    public CreateIntentResult createPaymentIntent(BigDecimal amount, String currency, String description) {
-        try {
-            long amountInCents = amount.movePointRight(2).longValueExact();
+    public String processPayment(Money amount, PaymentMethod method, String customerInfo) {
+        if (method != PaymentMethod.STRIPE) {
+            throw new IllegalArgumentException("StripePaymentAdapter ne supporte que STRIPE");
+        }
 
+        StripePaymentRequest req = StripePaymentMapper.toRequest(amount, customerInfo);
+
+        try {
             PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
-                    .setAmount(amountInCents)
-                    .setCurrency(currency.toLowerCase())
-                    .setDescription(description)
-                    .setAutomaticPaymentMethods(
-                            PaymentIntentCreateParams.AutomaticPaymentMethods.builder().setEnabled(true).build()
-                    )
+                    .setAmount(req.amountInSmallestUnit())
+                    .setCurrency(req.currency())
+                    .putMetadata("customerInfo", req.customerInfo() == null ? "" : req.customerInfo())
                     .build();
 
             PaymentIntent intent = PaymentIntent.create(params);
-            return new CreateIntentResult(intent.getId(), intent.getClientSecret());
+            return intent.getId();
         } catch (StripeException e) {
-            throw new IllegalArgumentException("Stripe create intent failed: " + e.getMessage(), e);
+            throw new IllegalStateException("Erreur Stripe: " + e.getMessage(), e);
         }
     }
 
     @Override
-    public void confirmPaymentIntent(String paymentIntentId) {
+    public boolean verifyPayment(String paymentId) {
+        try {
+            PaymentIntent intent = PaymentIntent.retrieve(paymentId);
+            return "succeeded".equalsIgnoreCase(intent.getStatus());
+        } catch (StripeException e) {
+            return false;
+        }
     }
 
     @Override
-    public void refund(String paymentIntentId) {
+    public void refundPayment(String paymentId, Money amount) {
         try {
+            long refundAmount = StripePaymentMapper.toRequest(amount, "").amountInSmallestUnit();
+
             RefundCreateParams params = RefundCreateParams.builder()
-                    .setPaymentIntent(paymentIntentId)
+                    .setPaymentIntent(paymentId)
+                    .setAmount(refundAmount > 0 ? refundAmount : null) // null = refund total
                     .build();
+
             Refund.create(params);
         } catch (StripeException e) {
-            throw new IllegalArgumentException("Stripe refund failed: " + e.getMessage(), e);
+            throw new IllegalStateException("Erreur refund Stripe: " + e.getMessage(), e);
         }
     }
 
     @Override
-    public String getStatus(String paymentIntentId) {
+    public String getPaymentStatus(String paymentId) {
         try {
-            PaymentIntent intent = PaymentIntent.retrieve(paymentIntentId);
+            PaymentIntent intent = PaymentIntent.retrieve(paymentId);
             return intent.getStatus();
         } catch (StripeException e) {
-            throw new IllegalArgumentException("Stripe get status failed: " + e.getMessage(), e);
+            return "unknown";
         }
-    }
-
-    @Override
-    public void handleWebhook(String payload, String signatureHeader) {
     }
 }

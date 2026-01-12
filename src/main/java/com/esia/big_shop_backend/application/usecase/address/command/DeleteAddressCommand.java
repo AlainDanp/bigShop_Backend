@@ -1,4 +1,6 @@
 package com.esia.big_shop_backend.application.usecase.address.command;
 
-public class DeleteAddressCommand {
-}
+public record DeleteAddressCommand(
+        Long addressId,
+        String userEmail
+) {}
