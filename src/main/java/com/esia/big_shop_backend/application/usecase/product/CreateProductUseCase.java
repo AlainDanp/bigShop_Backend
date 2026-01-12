@@ -1,5 +1,6 @@
 package com.esia.big_shop_backend.application.usecase.product;
 
+import com.esia.big_shop_backend.application.usecase.product.command.CreateProductCommand;
 import com.esia.big_shop_backend.domain.entity.Product;
 import com.esia.big_shop_backend.domain.repository.ProductRepository;
 import com.esia.big_shop_backend.domain.repository.CategoryRepository;

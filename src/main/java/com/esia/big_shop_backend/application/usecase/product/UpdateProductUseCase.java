@@ -1,5 +1,6 @@
 package com.esia.big_shop_backend.application.usecase.product;
 
+import com.esia.big_shop_backend.application.usecase.product.command.UpdateProductCommand;
 import com.esia.big_shop_backend.domain.entity.Product;
 import com.esia.big_shop_backend.domain.repository.CategoryRepository;
 import com.esia.big_shop_backend.domain.repository.ProductRepository;

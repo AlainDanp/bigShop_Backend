@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Category {
     private final CategoryId id;
+    private CategoryId parentId;
     private String name;
     private String description;
     private boolean active;

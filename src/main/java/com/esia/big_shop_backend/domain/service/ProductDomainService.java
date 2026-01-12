@@ -84,19 +84,4 @@ public class ProductDomainService {
         product.setCategoryId(categoryId);
     }
 
-    public void updatePrice(Product product, Money newPrice) {
-        if (newPrice == null || newPrice.getAmount() <= 0) {
-            throw new IllegalArgumentException("Price must be positive");
-        }
-        product.setPrice(newPrice);
-
-
-        if (product.getDiscountPrice() != null && product.getDiscountPrice().isGreaterThan(newPrice)) {
-            product.setDiscountPrice(null);
-        }
-    }
-
-    public boolean canBeSold(Product product) {
-        return product.isActive() && isInStock(product);
-    }
 }
