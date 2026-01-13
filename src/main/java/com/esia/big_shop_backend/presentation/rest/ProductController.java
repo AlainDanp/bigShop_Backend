@@ -21,7 +21,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,7 +45,6 @@ public class ProductController {
     private final ProductRestMapper mapper;
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Create a new product")
     public ResponseEntity<ProductResponse> createProduct(
             @RequestBody @Valid CreateProductRequest request) {
@@ -136,7 +134,6 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update an existing product")
     public ResponseEntity<ProductResponse> updateProduct(
             @PathVariable Long id,
@@ -148,7 +145,6 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete a product")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         DeleteProductCommand command = new DeleteProductCommand(id);

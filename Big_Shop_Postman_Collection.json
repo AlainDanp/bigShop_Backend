@@ -1,1205 +1,740 @@
 {
-  "info": {
-    "name": "Big Shop E-Commerce API",
-    "description": "Collection complète pour tester toutes les APIs du backend Big Shop",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-  },
-  "variable": [
-    {
-      "key": "baseUrl",
-      "value": "http://localhost:8081",
-      "type": "string"
-    },
-    {
-      "key": "token",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "userId",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "productId",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "categoryId",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "orderId",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "addressId",
-      "value": "",
-      "type": "string"
-    }
-  ],
-  "item": [
-    {
-      "name": "01. Authentication",
-      "item": [
-        {
-          "name": "Register User",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 201\", function () {",
-                  "    pm.response.to.have.status(201);",
-                  "});",
-                  "",
-                  "pm.test(\"Response has userId\", function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.userId).to.exist;",
-                  "    pm.environment.set(\"userId\", jsonData.userId);",
-                  "});",
-                  "",
-                  "pm.test(\"Response has username and email\", function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.username).to.eql(\"testuser\");",
-                  "    pm.expect(jsonData.email).to.eql(\"test@example.com\");",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"username\": \"testuser\",\n  \"email\": \"test@example.com\",\n  \"password\": \"Test123!\",\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "register"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Register Admin User",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 201\", function () {",
-                  "    pm.response.to.have.status(201);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"username\": \"admin\",\n  \"email\": \"admin@bigshop.com\",\n  \"password\": \"Admin123!\",\n  \"firstName\": \"Admin\",\n  \"lastName\": \"User\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "register"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Login User",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test(\"Token is present\", function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.accessToken).to.exist;",
-                  "    pm.environment.set(\"token\", jsonData.accessToken);",
-                  "    pm.environment.set(\"userId\", jsonData.userId);",
-                  "});",
-                  "",
-                  "pm.test(\"User has roles\", function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.roles).to.be.an('array');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"usernameOrEmail\": \"testuser\",\n  \"password\": \"Test123!\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Login Admin",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "var jsonData = pm.response.json();",
-                  "pm.environment.set(\"token\", jsonData.accessToken);",
-                  "pm.environment.set(\"userId\", jsonData.userId);"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"usernameOrEmail\": \"admin\",\n  \"password\": \"Admin123!\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Refresh Token",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/auth/refresh-token",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "refresh-token"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Logout",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/auth/logout",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "logout"]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "02. Categories",
-      "item": [
-        {
-          "name": "Create Category",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 201\", function () {",
-                  "    pm.response.to.have.status(201);",
-                  "});",
-                  "",
-                  "var jsonData = pm.response.json();",
-                  "if (jsonData.categoryId) {",
-                  "    pm.environment.set(\"categoryId\", jsonData.categoryId);",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Smartphones\",\n  \"description\": \"Latest smartphones and mobile devices\",\n  \"parentId\": null,\n  \"active\": true\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/categories",
-              "host": ["{{baseUrl}}"],
-              "path": ["categories"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get All Categories",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test(\"Response has content\", function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.content).to.be.an('array');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/categories?page=0&size=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["categories"],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "0"
-                },
-                {
-                  "key": "size",
-                  "value": "20"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Root Categories",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/categories/root",
-              "host": ["{{baseUrl}}"],
-              "path": ["categories", "root"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Category by ID",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/categories/{{categoryId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["categories", "{{categoryId}}"]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "03. Products",
-      "item": [
-        {
-          "name": "Create Product",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 201\", function () {",
-                  "    pm.response.to.have.status(201);",
-                  "});",
-                  "",
-                  "var jsonData = pm.response.json();",
-                  "if (jsonData.id) {",
-                  "    pm.environment.set(\"productId\", jsonData.id);",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"iPhone 15 Pro\",\n  \"description\": \"Latest Apple flagship smartphone with A17 Pro chip, titanium design, and advanced camera system\",\n  \"price\": 1199.99,\n  \"discountPrice\": 1099.99,\n  \"stockQuantity\": 50,\n  \"categoryId\": \"{{categoryId}}\",\n  \"active\": true\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/products",
-              "host": ["{{baseUrl}}"],
-              "path": ["products"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get All Products",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test(\"Response has content\", function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.content).to.be.an('array');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/products?page=0&size=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["products"],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "0"
-                },
-                {
-                  "key": "size",
-                  "value": "10"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Product by ID",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/products/{{productId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["products", "{{productId}}"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Search Products",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/products/search?keyword=iphone",
-              "host": ["{{baseUrl}}"],
-              "path": ["products", "search"],
-              "query": [
-                {
-                  "key": "keyword",
-                  "value": "iphone"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Products by Category",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/products/category/{{categoryId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["products", "category", "{{categoryId}}"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Active Products",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/products/active",
-              "host": ["{{baseUrl}}"],
-              "path": ["products", "active"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Products On Sale",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/products/on-sale",
-              "host": ["{{baseUrl}}"],
-              "path": ["products", "on-sale"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update Product",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"iPhone 15 Pro Max\",\n  \"description\": \"Updated description\",\n  \"price\": 1299.99,\n  \"discountPrice\": 1199.99,\n  \"stockQuantity\": 45,\n  \"categoryId\": \"{{categoryId}}\",\n  \"active\": true\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/products/{{productId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["products", "{{productId}}"]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "04. Addresses",
-      "item": [
-        {
-          "name": "Create Address",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 201\", function () {",
-                  "    pm.response.to.have.status(201);",
-                  "});",
-                  "",
-                  "var jsonData = pm.response.json();",
-                  "if (jsonData.id) {",
-                  "    pm.environment.set(\"addressId\", jsonData.id);",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"fullName\": \"Test User\",\n  \"phone\": \"+33612345678\",\n  \"street\": \"123 Rue de Rivoli\",\n  \"city\": \"Paris\",\n  \"zipCode\": \"75001\",\n  \"country\": \"France\",\n  \"isDefault\": true\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/addresses",
-              "host": ["{{baseUrl}}"],
-              "path": ["addresses"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get My Addresses",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/addresses",
-              "host": ["{{baseUrl}}"],
-              "path": ["addresses"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Default Address",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/addresses/default",
-              "host": ["{{baseUrl}}"],
-              "path": ["addresses", "default"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Address by ID",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/addresses/{{addressId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["addresses", "{{addressId}}"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update Address",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"fullName\": \"Test User Updated\",\n  \"phone\": \"+33698765432\",\n  \"street\": \"456 Avenue des Champs-Élysées\",\n  \"city\": \"Paris\",\n  \"zipCode\": \"75008\",\n  \"country\": \"France\",\n  \"isDefault\": true\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/addresses/{{addressId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["addresses", "{{addressId}}"]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "05. Cart",
-      "item": [
-        {
-          "name": "Get Cart",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/cart",
-              "host": ["{{baseUrl}}"],
-              "path": ["cart"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Add Item to Cart",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test(\"Cart has items\", function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.items).to.be.an('array');",
-                  "    pm.expect(jsonData.items.length).to.be.greaterThan(0);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"quantity\": 2\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/cart/items",
-              "host": ["{{baseUrl}}"],
-              "path": ["cart", "items"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update Cart Item Quantity",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"quantity\": 3\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/cart/items/{{productId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["cart", "items", "{{productId}}"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Remove Item from Cart",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/cart/items/{{productId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["cart", "items", "{{productId}}"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Clear Cart",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/cart",
-              "host": ["{{baseUrl}}"],
-              "path": ["cart"]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "06. Orders",
-      "item": [
-        {
-          "name": "Create Order",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 201\", function () {",
-                  "    pm.response.to.have.status(201);",
-                  "});",
-                  "",
-                  "var jsonData = pm.response.json();",
-                  "if (jsonData.id) {",
-                  "    pm.environment.set(\"orderId\", jsonData.id);",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"addressId\": \"{{addressId}}\",\n  \"paymentMethod\": \"STRIPE\",\n  \"notes\": \"Please deliver between 9AM-5PM\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/orders",
-              "host": ["{{baseUrl}}"],
-              "path": ["orders"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Order by ID",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/orders/{{orderId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["orders", "{{orderId}}"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get My Orders",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/orders/my-orders?page=0&size=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["orders", "my-orders"],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "0"
-                },
-                {
-                  "key": "size",
-                  "value": "10"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get All Orders (ADMIN)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/orders?page=0&size=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["orders"],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "0"
-                },
-                {
-                  "key": "size",
-                  "value": "20"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Cancel Order",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"reason\": \"Changed my mind\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/orders/{{orderId}}/cancel",
-              "host": ["{{baseUrl}}"],
-              "path": ["orders", "{{orderId}}", "cancel"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Confirm Order (ADMIN)",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"notes\": \"Payment verified, ready to ship\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/orders/{{orderId}}/confirm",
-              "host": ["{{baseUrl}}"],
-              "path": ["orders", "{{orderId}}", "confirm"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Ship Order (ADMIN)",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"trackingNumber\": \"TRACK123456789\",\n  \"carrier\": \"DHL Express\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/orders/{{orderId}}/ship",
-              "host": ["{{baseUrl}}"],
-              "path": ["orders", "{{orderId}}", "ship"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Deliver Order (ADMIN)",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"deliveredAt\": \"2026-01-15T14:30:00Z\",\n  \"receivedBy\": \"Test User\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/orders/{{orderId}}/deliver",
-              "host": ["{{baseUrl}}"],
-              "path": ["orders", "{{orderId}}", "deliver"]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "07. User Profile",
-      "item": [
-        {
-          "name": "Get My Profile",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/users/profile",
-              "host": ["{{baseUrl}}"],
-              "path": ["users", "profile"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update My Profile",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"firstName\": \"Updated Test\",\n  \"lastName\": \"User Updated\",\n  \"phoneNumber\": \"+33698765432\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/users/profile",
-              "host": ["{{baseUrl}}"],
-              "path": ["users", "profile"]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "08. Admin Dashboard",
-      "item": [
-        {
-          "name": "Get Dashboard Stats (ADMIN)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/dashboard/stats",
-              "host": ["{{baseUrl}}"],
-              "path": ["dashboard", "stats"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Revenue Stats (ADMIN)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/admin/revenue?startDate=2026-01-01&endDate=2026-01-31",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin", "revenue"],
-              "query": [
-                {
-                  "key": "startDate",
-                  "value": "2026-01-01"
-                },
-                {
-                  "key": "endDate",
-                  "value": "2026-01-31"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Top Products (ADMIN)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/admin/top-products?limit=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin", "top-products"],
-              "query": [
-                {
-                  "key": "limit",
-                  "value": "10"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Low Stock Products (ADMIN)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/admin/low-stock?threshold=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin", "low-stock"],
-              "query": [
-                {
-                  "key": "threshold",
-                  "value": "10"
-                }
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    }
-  ]
+	"info": {
+		"_postman_id": "b6a8c2d1-7e4f-4b5a-9c3d-1e2f3a4b5c6d",
+		"name": "Big Shop Backend API (Complete)",
+		"description": "Collection complète et corrigée pour tester toutes les APIs de Big Shop Backend",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8081",
+			"type": "string"
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userEmail",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "productId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "categoryId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "orderId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "addressId",
+			"value": "1",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "01. Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"randomEmail\", \"user\" + Date.now() + \"@example.com\");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"var jsonData = pm.response.json();",
+									"if (jsonData.accessToken) {",
+									"    pm.environment.set(\"authToken\", jsonData.accessToken);",
+									"    pm.environment.set(\"userId\", jsonData.user.id);",
+									"    // Sauvegarde l'email utilisé pour le login futur",
+									"    var requestBody = JSON.parse(pm.request.body.raw);",
+									"    pm.environment.set(\"userEmail\", requestBody.email);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"email\": \"{{randomEmail}}\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"var jsonData = pm.response.json();",
+									"if (jsonData.accessToken) {",
+									"    pm.environment.set(\"authToken\", jsonData.accessToken);",
+									"    pm.environment.set(\"userId\", jsonData.user.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{userEmail}}\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"var jsonData = pm.response.json();",
+									"if (jsonData.accessToken) {",
+									"    pm.environment.set(\"authToken\", jsonData.accessToken);",
+									"    pm.environment.set(\"userId\", jsonData.user.id);",
+									"    console.log(\"Admin Token retrieved\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@bigshop.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Refresh-Token",
+								"value": "some-refresh-token-value"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/auth/refresh-token",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"refresh-token"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "02. Categories",
+			"item": [
+				{
+					"name": "Get All Categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Category by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/categories/{{categoryId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories",
+								"{{categoryId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Category (Admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.id) {",
+									"    pm.environment.set(\"categoryId\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"New Category\",\n    \"description\": \"Created via Postman\",\n    \"active\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "03. Products",
+			"item": [
+				{
+					"name": "Get All Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Product (Admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.id) {",
+									"    pm.environment.set(\"productId\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"New Product\",\n    \"description\": \"Awesome product\",\n    \"price\": 99.99,\n    \"stockQuantity\": 100,\n    \"categoryId\": {{categoryId}},\n    \"active\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products/{{productId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products",
+								"{{productId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "04. Cart",
+			"item": [
+				{
+					"name": "Get Cart",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/cart",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cart"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add to Cart",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"productId\": {{productId}},\n    \"quantity\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/cart/items",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cart",
+								"items"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Clear Cart",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/cart",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cart"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "05. Addresses",
+			"item": [
+				{
+					"name": "Create Address",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.id) {",
+									"    pm.environment.set(\"addressId\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fullName\": \"Test User\",\n  \"phone\": \"+33612345678\",\n  \"street\": \"123 Rue de Rivoli\",\n  \"city\": \"Paris\",\n  \"zipCode\": \"75001\",\n  \"country\": \"France\",\n  \"isDefault\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/addresses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"addresses"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Addresses",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/addresses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"addresses"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "06. Orders",
+			"item": [
+				{
+					"name": "Create Order",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.id) {",
+									"    pm.environment.set(\"orderId\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"addressId\": {{addressId}},\n  \"paymentMethod\": \"STRIPE\",\n  \"notes\": \"Please deliver between 9AM-5PM\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Orders",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/orders/my-orders",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"my-orders"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "07. Admin Dashboard",
+			"item": [
+				{
+					"name": "Get Dashboard Stats",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/dashboard/stats",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"dashboard",
+								"stats"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Revenue Stats",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/admin/revenue?startDate=2026-01-01&endDate=2026-01-31",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"revenue"
+							],
+							"query": [
+								{
+									"key": "startDate",
+									"value": "2026-01-01"
+								},
+								{
+									"key": "endDate",
+									"value": "2026-01-31"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
 }

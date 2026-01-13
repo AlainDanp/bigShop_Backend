@@ -50,6 +50,7 @@ public class PaymentController {
 
     @PostMapping("/confirm/{paymentIntentId}")
     public ResponseEntity<Map<String, String>> confirmStripe(@PathVariable String paymentIntentId) {
+        // TODO: Implement actual confirmation logic if needed, or rely on Webhook
         Map<String, String> response = new HashMap<>();
         response.put("status", "ok");
         response.put("paymentIntentId", paymentIntentId);
@@ -74,6 +75,7 @@ public class PaymentController {
     @PostMapping("/webhook")
     public ResponseEntity<Map<String, String>> webhook(@RequestBody String payload,
                                                        @RequestHeader(name = "Stripe-Signature", required = false) String sig) {
+        // TODO: Implement Stripe Webhook verification and order status update
         Map<String, String> response = new HashMap<>();
         response.put("status", "success");
         return ResponseEntity.ok(response);

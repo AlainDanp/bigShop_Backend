@@ -33,51 +33,38 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         try {
             String jwt = getJwtFromRequest(request);
+            log.info("Processing request: {} {}", request.getMethod(), request.getRequestURI());
 
-            if (StringUtils.hasText(jwt) && jwtTokenProvider.validateToken(jwt)) {
-                Long userId = jwtTokenProvider.getUserIdFromToken(jwt).getValue();
+            if (StringUtils.hasText(jwt)) {
+                log.info("JWT Token found in header");
+                if (jwtTokenProvider.validateToken(jwt)) {
+                    Long userId = jwtTokenProvider.getUserIdFromToken(jwt).getValue();
+                    log.info("JWT Token valid. User ID: {}", userId);
 
-                UserDetails userDetails = customUserDetailsService.loadUserById(userId);
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    UserDetails userDetails = customUserDetailsService.loadUserById(userId);
+                    log.info("User loaded: {}", userDetails.getUsername());
+                    log.info("Authorities: {}", userDetails.getAuthorities());
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    log.info("Authentication set in SecurityContext");
+                } else {
+                    log.warn("JWT Token validation failed");
+                }
+            } else {
+                log.info("No JWT Token found in request header");
             }
         } catch (Exception ex) {
             log.error("Could not set user authentication in security context", ex);
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    @Override
-    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
-        String path = request.getServletPath();
-        String method = request.getMethod();
-
-        // Skip filter for public endpoints
-        if (path.startsWith("/auth/")) {
-            return true;
-        }
-
-        if (path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs") ||
-                path.startsWith("/swagger-resources") || path.startsWith("/configuration") ||
-                path.startsWith("/webjars")) {
-            return true;
-        }
-
-        // Allow GET requests for products and categories
-        if ("GET".equalsIgnoreCase(method)) {
-            if (path.startsWith("/products") || path.startsWith("/categories")) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private String getJwtFromRequest(HttpServletRequest request) {

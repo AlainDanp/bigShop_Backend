@@ -41,11 +41,19 @@ public class RegisterUserUseCase {
             throw new RuntimeException("Email already in use");
         }
 
+        // Assign ADMIN role by default for testing purposes, or if it's the first user
+        // Ideally, this logic should be more sophisticated (e.g. based on a whitelist or specific registration flow)
+        // For now, we will assign both USER and ADMIN roles to new users as requested.
+        
         Role userRole = roleRepository.findByName(RoleEnum.USER)
-                .orElseThrow(() -> new RuntimeException("Default role not found"));
+                .orElseThrow(() -> new RuntimeException("Default role USER not found"));
+        
+        Role adminRole = roleRepository.findByName(RoleEnum.ADMIN)
+                .orElseThrow(() -> new RuntimeException("Default role ADMIN not found"));
 
         Set<Role> roles = new HashSet<>();
         roles.add(userRole);
+        roles.add(adminRole); // Adding ADMIN role
         
         Set<RoleId> roleIds = roles.stream()
                 .map(Role::getId)

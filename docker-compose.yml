@@ -1,6 +1,6 @@
 services:
   zookeeper:
-    image: confluentinc/cp-zookeeper:7.6.1
+    image: confluentinc/cp-zookeeper:7.5.0
     container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
@@ -9,7 +9,7 @@ services:
       - "2181:2181"
 
   kafka:
-    image: confluentinc/cp-kafka:7.6.1
+    image: confluentinc/cp-kafka:7.5.0
     container_name: kafka
     depends_on:
       - zookeeper
@@ -18,26 +18,21 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_INTERNAL://0.0.0.0:29092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
-
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
 
-  backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    depends_on:
-      - kafka
-    ports:
-      - "8080:8080"
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_big_shop
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      MYSQL_ROOT_PASSWORD: Jeux@joneA56
+      MYSQL_DATABASE: big_shop
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
 
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-
-      JAVA_OPTS: "-Xms256m -Xmx512m"
+volumes:
+  mysql_data:

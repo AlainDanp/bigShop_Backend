@@ -22,7 +22,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,7 +43,6 @@ public class CategoryController {
     private final CategoryRestMapper mapper;
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Create a new category")
     public ResponseEntity<CategoryResponse> createCategory(@RequestBody @Valid CreateCategoryRequest request) {
         CreateCategoryCommand command = mapper.toCommand(request);
@@ -104,7 +102,6 @@ public class CategoryController {
 
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update a category")
     public ResponseEntity<CategoryResponse> updateCategory(
             @PathVariable Long id,
@@ -115,7 +112,6 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete a category")
     public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
         DeleteCategoryCommand command = new DeleteCategoryCommand(id);
