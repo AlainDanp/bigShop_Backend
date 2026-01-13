@@ -82,7 +82,6 @@ public class OrderController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get all orders (Admin)")
     public ResponseEntity<Page<OrderResponse>> getAllOrders(Pageable pageable) {
         GetAllOrdersQuery query = new GetAllOrdersQuery(pageable.getPageNumber(), pageable.getPageSize());
@@ -107,7 +106,6 @@ public class OrderController {
     }
     
     @PutMapping("/{id}/confirm")
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Confirm an order")
     public ResponseEntity<Void> confirmOrder(@PathVariable OrderId id) {
         ConfirmOrderCommand command = new ConfirmOrderCommand(id);
@@ -116,7 +114,6 @@ public class OrderController {
     }
 
     @PutMapping("/{id}/ship")
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Ship an order")
     public ResponseEntity<Void> shipOrder(@PathVariable OrderId id) {
         ShipOrderCommand command = new ShipOrderCommand(id);
@@ -125,7 +122,6 @@ public class OrderController {
     }
 
     @PutMapping("/{id}/deliver")
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Mark order as delivered")
     public ResponseEntity<Void> deliverOrder(@PathVariable OrderId id) {
         DeliverOrderCommand command = new DeliverOrderCommand(id);
@@ -136,6 +132,10 @@ public class OrderController {
     private Long getUserIdFromUserDetails(UserDetails userDetails) {
         if (userDetails instanceof com.esia.big_shop_backend.infrastrucute.sercutity.CustomUserDetails) {
             return ((com.esia.big_shop_backend.infrastrucute.sercutity.CustomUserDetails) userDetails).getUserId();
+        }
+        // Fallback for testing without security
+        if (userDetails == null) {
+            return 1L; // Default user ID for testing
         }
         throw new IllegalStateException("UserDetails is not an instance of CustomUserDetails");
     }

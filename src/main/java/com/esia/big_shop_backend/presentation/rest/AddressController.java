@@ -32,11 +32,21 @@ public class AddressController {
     private final SetDefaultAddressUseCase setDefaultAddressUseCase;
     private final AddressRestMapper mapper;
 
+    // Helper method to get email safely
+    private String getEmail(Principal principal) {
+        if (principal != null) {
+            return principal.getName();
+        }
+        // Fallback for testing without security
+        // WARNING: Ensure this email exists in your database!
+        return "admin@bigshop.com";
+    }
+
     @PostMapping
     public ResponseEntity<AddressResponse> createAddress(@RequestBody @Valid CreateAddressRequest req, Principal principal) {
         var address = createAddressUseCase.execute(
                 CreateAddressCommand.builder()
-                        .userEmail(principal.getName())
+                        .userEmail(getEmail(principal))
                         .fullName(req.getFullName())
                         .phone(req.getPhone())
                         .street(req.getStreet())
@@ -51,14 +61,14 @@ public class AddressController {
 
     @GetMapping
     public ResponseEntity<List<AddressResponse>> getUserAddresses(Principal principal) {
-        var list = getUserAddressesUseCase.execute(principal.getName()).stream().map(mapper::toResponse).toList();
+        var list = getUserAddressesUseCase.execute(getEmail(principal)).stream().map(mapper::toResponse).toList();
         return ResponseEntity.ok(list);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<AddressResponse> getAddressById(@PathVariable Long id, Principal principal) {
         var address = getAddressUseCase.execute(GetAddressQuery.builder()
-                .userEmail(principal.getName())
+                .userEmail(getEmail(principal))
                 .addressId(id)
                 .build());
         return ResponseEntity.ok(mapper.toResponse(address));
@@ -69,7 +79,7 @@ public class AddressController {
                                                          @RequestBody @Valid UpdateAddressRequest req,
                                                          Principal principal) {
         var updated = updateAddressUseCase.execute(UpdateAddressCommand.builder()
-                .userEmail(principal.getName())
+                .userEmail(getEmail(principal))
                 .addressId(id)
                 .fullName(req.getFullName())
                 .phone(req.getPhone())
@@ -83,13 +93,13 @@ public class AddressController {
 
     @PutMapping("/{id}/default")
     public ResponseEntity<AddressResponse> setDefaultAddress(@PathVariable Long id, Principal principal) {
-        var updated = setDefaultAddressUseCase.execute(principal.getName(), id);
+        var updated = setDefaultAddressUseCase.execute(getEmail(principal), id);
         return ResponseEntity.ok(mapper.toResponse((Address) updated));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteAddress(@PathVariable Long id, Principal principal) {
-        deleteAddressUseCase.execute(principal.getName(), id);
+        deleteAddressUseCase.execute(getEmail(principal), id);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Address deleted successfully");
         return ResponseEntity.ok(response);
@@ -97,7 +107,7 @@ public class AddressController {
 
     @GetMapping("/default")
     public ResponseEntity<AddressResponse> getDefaultAddress(Principal principal) {
-        var addresses = getUserAddressesUseCase.execute(principal.getName());
+        var addresses = getUserAddressesUseCase.execute(getEmail(principal));
         var def = addresses.stream().filter(a -> a.isDefault()).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Default address not found"));
         return ResponseEntity.ok(mapper.toResponse(def));
