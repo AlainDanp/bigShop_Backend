@@ -8,6 +8,7 @@ public interface EventPublisher {
     void publish(CartUpdatedEvent event);
     
     void publish(UserRegisteredEvent event);
+    void publish(UserDeletedEvent event);
     
     void publish(ProductCreatedEvent event);
     void publish(ProductUpdatedEvent event);

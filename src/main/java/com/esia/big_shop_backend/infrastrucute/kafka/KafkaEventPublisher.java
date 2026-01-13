@@ -20,6 +20,7 @@ public class KafkaEventPublisher implements EventPublisher {
     private static final String TOPIC_CART_UPDATED = "cart-updated-topic";
     
     private static final String TOPIC_USER_REGISTERED = "user-registered-topic";
+    private static final String TOPIC_USER_DELETED = "user-deleted-topic";
     
     private static final String TOPIC_PRODUCT_CREATED = "product-created-topic";
     private static final String TOPIC_PRODUCT_UPDATED = "product-updated-topic";
@@ -56,6 +57,11 @@ public class KafkaEventPublisher implements EventPublisher {
     @Override
     public void publish(UserRegisteredEvent event) {
         sendEvent(TOPIC_USER_REGISTERED, String.valueOf(event.getUserId()), event);
+    }
+
+    @Override
+    public void publish(UserDeletedEvent event) {
+        sendEvent(TOPIC_USER_DELETED, String.valueOf(event.getUserId()), event);
     }
 
     @Override
