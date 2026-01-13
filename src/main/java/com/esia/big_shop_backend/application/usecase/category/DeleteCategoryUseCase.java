@@ -1,6 +1,8 @@
 package com.esia.big_shop_backend.application.usecase.category;
 
+import com.esia.big_shop_backend.application.port.output.EventPublisher;
 import com.esia.big_shop_backend.application.usecase.category.command.DeleteCategoryCommand;
+import com.esia.big_shop_backend.domain.event.CategoryDeletedEvent;
 import com.esia.big_shop_backend.domain.repository.CategoryRepository;
 import com.esia.big_shop_backend.domain.valueobject.ids.CategoryId;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class DeleteCategoryUseCase {
     private final CategoryRepository categoryRepository;
+    private final EventPublisher eventPublisher;
 
     @Transactional
     public void execute(DeleteCategoryCommand command) {
@@ -19,5 +22,7 @@ public class DeleteCategoryUseCase {
             throw new IllegalArgumentException("Category not found with id: " + command.getCategoryId());
         }
         categoryRepository.deleteById(categoryId);
+        
+        eventPublisher.publish(CategoryDeletedEvent.of(categoryId));
     }
 }

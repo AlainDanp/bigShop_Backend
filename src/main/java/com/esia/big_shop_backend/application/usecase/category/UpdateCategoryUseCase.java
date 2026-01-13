@@ -1,7 +1,9 @@
 package com.esia.big_shop_backend.application.usecase.category;
 
+import com.esia.big_shop_backend.application.port.output.EventPublisher;
 import com.esia.big_shop_backend.application.usecase.category.command.UpdateCategoryCommand;
 import com.esia.big_shop_backend.domain.entity.Category;
+import com.esia.big_shop_backend.domain.event.CategoryUpdatedEvent;
 import com.esia.big_shop_backend.domain.repository.CategoryRepository;
 import com.esia.big_shop_backend.domain.service.CategoryDomainService;
 import com.esia.big_shop_backend.domain.valueobject.ids.CategoryId;
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UpdateCategoryUseCase {
     private final CategoryRepository categoryRepository;
     private final CategoryDomainService categoryDomainService;
+    private final EventPublisher eventPublisher;
 
     @Transactional
     public Category execute(UpdateCategoryCommand command) {
@@ -22,6 +25,10 @@ public class UpdateCategoryUseCase {
 
         categoryDomainService.updateDetails(category, command.getName(), command.getDescription());
 
-        return categoryRepository.save(category);
+        Category savedCategory = categoryRepository.save(category);
+        
+        eventPublisher.publish(CategoryUpdatedEvent.of(savedCategory.getCategoryId()));
+        
+        return savedCategory;
     }
 }

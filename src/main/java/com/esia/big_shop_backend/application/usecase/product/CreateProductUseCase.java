@@ -1,7 +1,9 @@
 package com.esia.big_shop_backend.application.usecase.product;
 
+import com.esia.big_shop_backend.application.port.output.EventPublisher;
 import com.esia.big_shop_backend.application.usecase.product.command.CreateProductCommand;
 import com.esia.big_shop_backend.domain.entity.Product;
+import com.esia.big_shop_backend.domain.event.ProductCreatedEvent;
 import com.esia.big_shop_backend.domain.repository.ProductRepository;
 import com.esia.big_shop_backend.domain.repository.CategoryRepository;
 import com.esia.big_shop_backend.domain.valueobject.Money;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CreateProductUseCase {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final EventPublisher eventPublisher;
 
     @Transactional
     public Product execute(CreateProductCommand command) {
@@ -36,8 +39,11 @@ public class CreateProductUseCase {
                 true
         );
 
-        // 3. Valider et sauvegarder
-        return productRepository.save(product);
+        Product savedProduct = productRepository.save(product);
+        
+        eventPublisher.publish(ProductCreatedEvent.of(savedProduct.getId(), savedProduct.getName()));
+        
+        return savedProduct;
     }
 
 }

@@ -54,6 +54,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    @Override
+    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+        String path = request.getServletPath();
+        String method = request.getMethod();
+
+        // Skip filter for public endpoints
+        if (path.startsWith("/auth/")) {
+            return true;
+        }
+
+        if (path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs") ||
+                path.startsWith("/swagger-resources") || path.startsWith("/configuration") ||
+                path.startsWith("/webjars")) {
+            return true;
+        }
+
+        // Allow GET requests for products and categories
+        if ("GET".equalsIgnoreCase(method)) {
+            if (path.startsWith("/products") || path.startsWith("/categories")) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private String getJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {

@@ -1,10 +1,8 @@
 package com.esia.big_shop_backend.config;
 
-import com.esia.big_shop_backend.application.port.output.CurrentUserPort;
-import com.esia.big_shop_backend.application.port.output.MtnPaymentPort;
-import com.esia.big_shop_backend.application.port.output.OrangeMoneyPaymentPort;
-import com.esia.big_shop_backend.application.port.output.StripePaymentPort;
+import com.esia.big_shop_backend.application.port.output.*;
 import com.esia.big_shop_backend.application.usecase.payment.*;
+import com.esia.big_shop_backend.domain.event.PaymentProcessedEvent;
 import com.esia.big_shop_backend.domain.repository.PaymentRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,23 +15,25 @@ public class PaymentConfig {
             PaymentRepository paymentRepository,
             StripePaymentPort stripePaymentPort,
             CurrentUserPort currentUserPort) {
-        return new ProcessStripePaymentUseCase(paymentRepository, stripePaymentPort, currentUserPort);
+        return new ProcessStripePaymentUseCase(paymentRepository, stripePaymentPort, currentUserPort, null);
     }
 
     @Bean
     public ProcessOrangeMoneyPaymentUseCase processOrangeMoneyPaymentUseCase(
             PaymentRepository paymentRepository,
             OrangeMoneyPaymentPort orangeMoneyPaymentPort,
-            CurrentUserPort currentUserPort) {
-        return new ProcessOrangeMoneyPaymentUseCase(paymentRepository, orangeMoneyPaymentPort, currentUserPort);
+            CurrentUserPort currentUserPort,
+            EventPublisher eventPublisher) {
+        return new ProcessOrangeMoneyPaymentUseCase(paymentRepository, orangeMoneyPaymentPort, currentUserPort, eventPublisher);
     }
 
     @Bean
     public ProcessMtnPaymentUseCase processMtnPaymentUseCase(
             PaymentRepository paymentRepository,
             MtnPaymentPort mtnPaymentPort,
-            CurrentUserPort currentUserPort) {
-        return new ProcessMtnPaymentUseCase(paymentRepository, mtnPaymentPort, currentUserPort);
+            CurrentUserPort currentUserPort,
+            EventPublisher eventPublisher) {
+        return new ProcessMtnPaymentUseCase(paymentRepository, mtnPaymentPort, currentUserPort, eventPublisher);
     }
 
     @Bean

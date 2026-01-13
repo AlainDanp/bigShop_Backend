@@ -1,7 +1,6 @@
 package com.esia.big_shop_backend.domain.entity;
 
 import com.esia.big_shop_backend.domain.valueobject.ids.CategoryId;
-import com.esia.big_shop_backend.domain.valueobject.ids.ParentId;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

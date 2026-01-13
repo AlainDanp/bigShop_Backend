@@ -1,7 +1,9 @@
 package com.esia.big_shop_backend.application.usecase.category;
 
+import com.esia.big_shop_backend.application.port.output.EventPublisher;
 import com.esia.big_shop_backend.application.usecase.category.command.CreateCategoryCommand;
 import com.esia.big_shop_backend.domain.entity.Category;
+import com.esia.big_shop_backend.domain.event.CategoryCreatedEvent;
 import com.esia.big_shop_backend.domain.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class CreateCategoryUseCase {
     private final CategoryRepository categoryRepository;
+    private final EventPublisher eventPublisher;
 
     @Transactional
     public Category execute(CreateCategoryCommand command) {
@@ -29,6 +32,10 @@ public class CreateCategoryUseCase {
                 null
         );
 
-        return categoryRepository.save(category);
+        Category savedCategory = categoryRepository.save(category);
+        
+        eventPublisher.publish(CategoryCreatedEvent.of(savedCategory.getCategoryId(), savedCategory.getName()));
+        
+        return savedCategory;
     }
 }

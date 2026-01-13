@@ -1,7 +1,9 @@
 package com.esia.big_shop_backend.application.usecase.product;
 
+import com.esia.big_shop_backend.application.port.output.EventPublisher;
 import com.esia.big_shop_backend.application.usecase.product.command.UpdateProductStockCommand;
 import com.esia.big_shop_backend.domain.entity.Product;
+import com.esia.big_shop_backend.domain.event.ProductUpdatedEvent;
 import com.esia.big_shop_backend.domain.repository.ProductRepository;
 import com.esia.big_shop_backend.domain.service.ProductDomainService;
 import com.esia.big_shop_backend.domain.valueobject.ids.ProductId;
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UpdateProductStockUseCase {
     private final ProductRepository productRepository;
     private final ProductDomainService productDomainService;
+    private final EventPublisher eventPublisher;
 
     @Transactional
     public Product execute(UpdateProductStockCommand command) {
@@ -25,6 +28,10 @@ public class UpdateProductStockUseCase {
             case DECREASE -> productDomainService.decreaseStock(product, command.getQuantity());
         }
 
-        return productRepository.save(product);
+        Product savedProduct = productRepository.save(product);
+        
+        eventPublisher.publish(ProductUpdatedEvent.of(savedProduct.getId()));
+        
+        return savedProduct;
     }
 }
