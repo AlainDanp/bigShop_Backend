@@ -12,7 +12,7 @@ public interface AddressRepository {
 
     List<Address> findAllByUserId(Long userId);
 
-    List<Address> findById(Long userId);
+    Optional<Address> findById(Long userId);
 
     Optional<Address> findDefaultByUserId(Long userId);
 

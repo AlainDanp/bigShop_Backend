@@ -36,8 +36,8 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     }
 
     @Override
-    public List<Category> findAll(int page) {
-        Pageable pageable = PageRequest.of(page, 20);
+    public List<Category> findAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
         return jpaRepository.findAll(pageable)
                 .stream()
                 .map(mapper::toDomain)

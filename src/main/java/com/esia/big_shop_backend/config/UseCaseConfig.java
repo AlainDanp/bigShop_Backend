@@ -44,29 +44,4 @@ public class UseCaseConfig {
     public SetDefaultAddressUseCase setDefaultAddressUseCase(AddressRepository repo, CurrentUserPort userPort) {
         return new SetDefaultAddressUseCase(repo, userPort);
     }
-
-    @Bean
-    public ProcessStripePaymentUseCase processStripePaymentUseCase(PaymentRepository repo, StripePaymentPort stripe, CurrentUserPort userPort) {
-        return new ProcessStripePaymentUseCase(repo, stripe, userPort);
-    }
-
-    @Bean
-    public ProcessMtnPaymentUseCase processMtnPaymentUseCase(PaymentRepository repo, MtnPaymentPort mtn, CurrentUserPort userPort) {
-        return new ProcessMtnPaymentUseCase(repo, mtn, userPort);
-    }
-
-    @Bean
-    public ProcessOrangeMoneyPaymentUseCase processOrangeMoneyPaymentUseCase(PaymentRepository repo, OrangeMoneyPaymentPort om, CurrentUserPort userPort) {
-        return new ProcessOrangeMoneyPaymentUseCase(repo, om, userPort);
-    }
-
-    @Bean
-    public CheckPaymentStatusUseCase checkPaymentStatusUseCase(PaymentRepository repo, StripePaymentPort stripe, MtnPaymentPort mtn, OrangeMoneyPaymentPort om) {
-        return new CheckPaymentStatusUseCase(repo, stripe, mtn, om);
-    }
-
-    @Bean
-    public RefundPaymentUseCase refundPaymentUseCase(PaymentRepository repo, StripePaymentPort stripe, MtnPaymentPort mtn, OrangeMoneyPaymentPort om, CurrentUserPort userPort) {
-        return new RefundPaymentUseCase(repo, stripe, mtn, om, userPort);
-    }
 }

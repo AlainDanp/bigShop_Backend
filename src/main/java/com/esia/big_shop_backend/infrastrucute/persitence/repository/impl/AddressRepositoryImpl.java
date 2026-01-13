@@ -36,6 +36,11 @@ public class AddressRepositoryImpl implements AddressRepository {
     }
 
     @Override
+    public Optional<Address> findById(Long userId) {
+        return jpaRepository.findById(userId).map(mapper::toDomain);
+    }
+
+    @Override
     public Optional<Address> findDefaultByUserId(Long userId) {
         return jpaRepository.findFirstByUserIdAndIsDefaultTrue(userId).map(mapper::toDomain);
     }
@@ -49,6 +54,11 @@ public class AddressRepositoryImpl implements AddressRepository {
                 jpaRepository.save(a);
             }
         }
+    }
+
+    @Override
+    public void deleteById(Long userId) {
+        jpaRepository.deleteById(userId);
     }
 
     @Override

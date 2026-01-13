@@ -4,7 +4,12 @@
       "Bash(ls:*)",
       "Bash(find:*)",
       "Bash(powershell -ExecutionPolicy Bypass -File:*)",
-      "Bash(dir /s /B \"C:\\\\Users\\\\alain\\\\OneDrive\\\\Documents\\\\X4\\(ESIEA\\)\\\\architecture application\\\\Backend\\\\big_shop_backend\\\\src\\\\main\\\\java\\\\com\\\\esia\\\\big_shop_backend\")"
+      "Bash(dir /s /B \"C:\\\\Users\\\\alain\\\\OneDrive\\\\Documents\\\\X4\\(ESIEA\\)\\\\architecture application\\\\Backend\\\\big_shop_backend\\\\src\\\\main\\\\java\\\\com\\\\esia\\\\big_shop_backend\")",
+      "Bash(mvn spring-boot:run:*)",
+      "Bash(where:*)",
+      "Bash(cmd.exe /c \"mvnw.cmd spring-boot:run\")",
+      "Bash(curl:*)",
+      "Bash(netstat:*)"
     ]
   }
 }

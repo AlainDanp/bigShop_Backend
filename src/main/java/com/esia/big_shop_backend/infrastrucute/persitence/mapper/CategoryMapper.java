@@ -13,7 +13,7 @@ public class CategoryMapper {
 
         return new Category(
                 entity.getId() != null ? CategoryId.of(entity.getId()) : null,
-                entity.getParent() != null && entity.getParent().getId() != null ? CategoryId.of(entity.getParent().getId()) : null,
+                entity.getParent() != null ? entity.getParent().getId() : null,
                 entity.getName(),
                 entity.getDescription(),
                 entity.getIsActive(),
@@ -26,11 +26,11 @@ public class CategoryMapper {
         if (domain == null) return null;
 
         CategoryJpaEntity entity = new CategoryJpaEntity();
-        entity.setId(domain.getId() != null ? domain.getId().getValue() : null);
+        entity.setId(domain.getCategoryId() != null ? domain.getCategoryId().getValue() : null);
         
         if (domain.getParentId() != null) {
             CategoryJpaEntity parent = new CategoryJpaEntity();
-            parent.setId(domain.getParentId().getValue());
+            parent.setId(domain.getParentId());
             entity.setParent(parent);
         }
 

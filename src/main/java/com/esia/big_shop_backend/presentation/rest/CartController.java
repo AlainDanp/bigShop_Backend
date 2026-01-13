@@ -5,9 +5,9 @@ import com.esia.big_shop_backend.application.usecase.cart.command.AddToCartComma
 import com.esia.big_shop_backend.application.usecase.cart.command.ClearCartCommand;
 import com.esia.big_shop_backend.application.usecase.cart.command.RemoveFromCartCommand;
 import com.esia.big_shop_backend.application.usecase.cart.command.UpdateCartItemCommand;
-import com.esia.big_shop_backend.application.usecase.cart.query.GetOrCreateCartQuery;
 import com.esia.big_shop_backend.domain.entity.Cart;
 import com.esia.big_shop_backend.domain.valueobject.ids.UserId;
+import com.esia.big_shop_backend.infrastrucute.sercutity.CustomUserDetails;
 import com.esia.big_shop_backend.presentation.dto.request.cart.AddToCartRequest;
 import com.esia.big_shop_backend.presentation.dto.request.cart.UpdateCartItemRequest;
 import com.esia.big_shop_backend.presentation.dto.response.cart.CartResponse;
@@ -84,21 +84,10 @@ public class CartController {
         clearCartUseCase.execute(command);
         return ResponseEntity.noContent().build();
     }
-
-    // Helper method to extract user ID from UserDetails
-    // In a real application, UserDetails might be a custom implementation containing the ID directly
-    // Or you might look up the user by username
     private Long getUserIdFromUserDetails(UserDetails userDetails) {
-        // This is a placeholder. You should adapt this to your actual UserDetails implementation.
-        // For example, if your UserDetails is an instance of your User entity or a wrapper around it:
-        // return ((CustomUserDetails) userDetails).getId();
-
-        // If you only have the username, you might need a UserService to look up the ID,
-        // or change the UseCases to accept username instead of ID.
-        // For now, assuming the username IS the ID (which is rare) or this needs to be implemented:
-        
-        // TODO: Implement proper user ID extraction
-        // For demonstration, throwing an exception if not implemented correctly
-        throw new UnsupportedOperationException("User ID extraction from UserDetails not implemented yet. Please adapt based on your security configuration.");
+        if (userDetails instanceof CustomUserDetails) {
+            return ((com.esia.big_shop_backend.infrastrucute.sercutity.CustomUserDetails) userDetails).getUserId();
+        }
+        throw new IllegalStateException("UserDetails is not an instance of CustomUserDetails");
     }
 }

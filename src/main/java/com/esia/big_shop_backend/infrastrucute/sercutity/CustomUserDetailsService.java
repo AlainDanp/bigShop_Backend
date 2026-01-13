@@ -28,15 +28,17 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByUsername(Username.of(username))
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getUsername().getValue())
-                .password(user.getPassword().getValue())
-                .authorities(getAuthorities(user))
-                .accountExpired(false)
-                .accountLocked(!user.isActive())
-                .credentialsExpired(false)
-                .disabled(!user.isActive())
-                .build();
+        return new CustomUserDetails(
+                user.getId().getValue(),
+                user.getUsername().getValue(),
+                user.getEmail().getValue(),
+                user.getPassword().getValue(),
+                user.isActive(),
+                true,
+                true,
+                user.isActive(),
+                getAuthorities(user)
+        );
     }
 
     @Transactional
@@ -44,15 +46,17 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findById(UserId.of(id))
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + id));
 
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getUsername().getValue())
-                .password(user.getPassword().getValue())
-                .authorities(getAuthorities(user))
-                .accountExpired(false)
-                .accountLocked(!user.isActive())
-                .credentialsExpired(false)
-                .disabled(!user.isActive())
-                .build();
+        return new CustomUserDetails(
+                user.getId().getValue(),
+                user.getUsername().getValue(),
+                user.getEmail().getValue(),
+                user.getPassword().getValue(),
+                user.isActive(),
+                true,
+                true,
+                user.isActive(),
+                getAuthorities(user)
+        );
     }
 
     private Collection<? extends GrantedAuthority> getAuthorities(User user) {

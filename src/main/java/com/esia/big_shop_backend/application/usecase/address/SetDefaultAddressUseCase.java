@@ -23,4 +23,14 @@ public class SetDefaultAddressUseCase {
 
         return addressRepository.save(address);
     }
+
+    public Object execute(String name, Long id) {
+        Long userId = currentUserPort.getUserIdByName(name);
+
+        Address address = addressRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new IllegalArgumentException("Address not found"));
+        addressRepository.unsetDefaultForUser(userId);
+        address.setDefault(true);
+        return addressRepository.save(address);
+    }
 }

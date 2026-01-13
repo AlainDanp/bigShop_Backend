@@ -10,6 +10,7 @@ public interface StripePaymentPort {
 
     void confirmPaymentIntent(String paymentIntentId);
 
+
     void refund(String paymentIntentId);
 
     String getStatus(String paymentIntentId);

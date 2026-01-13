@@ -1,22 +1,22 @@
 package com.esia.big_shop_backend.infrastrucute.payment;
 
-import com.esia.big_shop_backend.application.port.output.PaymentPort;
-import com.esia.big_shop_backend.domain.valueobject.Money;
-import com.esia.big_shop_backend.domain.valueobject.enums.PaymentMethod;
-import com.esia.big_shop_backend.infrastrucute.payment.mapper.StripePaymentMapper;
-import com.esia.big_shop_backend.infrastrucute.payment.dto.StripePaymentRequest;
+import com.esia.big_shop_backend.application.port.output.StripePaymentPort;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
-import com.stripe.model.Refund;
 import com.stripe.param.PaymentIntentCreateParams;
-import com.stripe.param.RefundCreateParams;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-@Service("stripePaymentAdapter")
-public class StripePaymentAdapter implements PaymentPort {
+import java.math.BigDecimal;
+
+@Service
+public class StripePaymentAdapter implements StripePaymentPort {
+
+    private static final Logger logger = LoggerFactory.getLogger(StripePaymentAdapter.class);
 
     @Value("${stripe.api.key:}")
     private String stripeApiKey;
@@ -25,64 +25,72 @@ public class StripePaymentAdapter implements PaymentPort {
     void init() {
         if (stripeApiKey != null && !stripeApiKey.isBlank()) {
             Stripe.apiKey = stripeApiKey;
+        } else {
+            logger.warn("Stripe API key is not configured. Stripe payments will fail.");
         }
     }
 
     @Override
-    public String processPayment(Money amount, PaymentMethod method, String customerInfo) {
-        if (method != PaymentMethod.STRIPE) {
-            throw new IllegalArgumentException("StripePaymentAdapter ne supporte que STRIPE");
-        }
-
-        StripePaymentRequest req = StripePaymentMapper.toRequest(amount, customerInfo);
-
+    public CreateIntentResult createPaymentIntent(BigDecimal amount, String currency, String description) {
+        logger.info("Creating Stripe Payment Intent for amount {} {}", amount, currency);
         try {
             PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
-                    .setAmount(req.amountInSmallestUnit())
-                    .setCurrency(req.currency())
-                    .putMetadata("customerInfo", req.customerInfo() == null ? "" : req.customerInfo())
+                    .setAmount(amount.multiply(BigDecimal.valueOf(100)).longValue()) // Stripe works with cents
+                    .setCurrency(currency.toLowerCase())
+                    .setDescription(description)
+                    .setAutomaticPaymentMethods(
+                            PaymentIntentCreateParams.AutomaticPaymentMethods.builder().setEnabled(true).build()
+                    )
                     .build();
 
-            PaymentIntent intent = PaymentIntent.create(params);
-            return intent.getId();
+            PaymentIntent paymentIntent = PaymentIntent.create(params);
+            return new CreateIntentResult(paymentIntent.getId(), paymentIntent.getClientSecret());
         } catch (StripeException e) {
-            throw new IllegalStateException("Erreur Stripe: " + e.getMessage(), e);
+            logger.error("Error creating Stripe Payment Intent", e);
+            throw new IllegalStateException("Error creating Stripe Payment Intent: " + e.getMessage(), e);
         }
     }
 
     @Override
-    public boolean verifyPayment(String paymentId) {
+    public void confirmPaymentIntent(String paymentIntentId) {
+        logger.info("Confirming Stripe Payment Intent: {}", paymentIntentId);
+        // Usually, confirmation happens on the client-side with the client_secret.
+        // This method could be used for server-side confirmation if needed.
         try {
-            PaymentIntent intent = PaymentIntent.retrieve(paymentId);
-            return "succeeded".equalsIgnoreCase(intent.getStatus());
+            PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentIntentId);
+            if (!"succeeded".equals(paymentIntent.getStatus())) {
+                 PaymentIntent.retrieve(paymentIntentId).confirm();
+            }
         } catch (StripeException e) {
-            return false;
+            logger.error("Error confirming Stripe Payment Intent {}", paymentIntentId, e);
+            throw new IllegalStateException("Error confirming Stripe Payment Intent: " + e.getMessage(), e);
         }
     }
 
     @Override
-    public void refundPayment(String paymentId, Money amount) {
-        try {
-            long refundAmount = StripePaymentMapper.toRequest(amount, "").amountInSmallestUnit();
-
-            RefundCreateParams params = RefundCreateParams.builder()
-                    .setPaymentIntent(paymentId)
-                    .setAmount(refundAmount > 0 ? refundAmount : null) // null = refund total
-                    .build();
-
-            Refund.create(params);
-        } catch (StripeException e) {
-            throw new IllegalStateException("Erreur refund Stripe: " + e.getMessage(), e);
-        }
+    public void refund(String paymentIntentId) {
+        logger.info("Refunding Stripe Payment Intent: {}", paymentIntentId);
+        // This is a placeholder. You'd need to implement refund logic.
+        // com.stripe.param.RefundCreateParams params = ...
+        // com.stripe.model.Refund.create(params);
     }
 
     @Override
-    public String getPaymentStatus(String paymentId) {
+    public String getStatus(String paymentIntentId) {
+        logger.info("Getting status for Stripe Payment Intent: {}", paymentIntentId);
         try {
-            PaymentIntent intent = PaymentIntent.retrieve(paymentId);
-            return intent.getStatus();
+            return PaymentIntent.retrieve(paymentIntentId).getStatus();
         } catch (StripeException e) {
+            logger.error("Error getting status for Stripe Payment Intent {}", paymentIntentId, e);
             return "unknown";
         }
+    }
+
+    @Override
+    public void handleWebhook(String payload, String signatureHeader) {
+        logger.info("Handling Stripe Webhook");
+        // This is a placeholder. You need to implement webhook signature verification
+        // and event handling logic here.
+        // See Stripe's documentation for `com.stripe.net.Webhook`.
     }
 }

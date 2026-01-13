@@ -17,7 +17,7 @@ public class ConfirmOrderUseCase {
 
     @Transactional
     public Order execute(ConfirmOrderCommand command) {
-        Order order = orderRepository.findById(OrderId.of(command.getOrderId()))
+        Order order = orderRepository.findById(OrderId.of(command.getOrderId().getValue()))
                 .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + command.getOrderId()));
 
         orderDomainService.confirm(order);

@@ -1,11 +1,12 @@
 package com.esia.big_shop_backend.presentation.rest;
 
 import com.esia.big_shop_backend.application.usecase.order.*;
-import com.esia.big_shop_backend.application.usecase.order.command.CreateOrderCommand;
+import com.esia.big_shop_backend.application.usecase.order.command.*;
 import com.esia.big_shop_backend.application.usecase.order.query.GetAllOrdersQuery;
 import com.esia.big_shop_backend.application.usecase.order.query.GetOrderQuery;
 import com.esia.big_shop_backend.application.usecase.order.query.GetUserOrdersQuery;
 import com.esia.big_shop_backend.domain.entity.Order;
+import com.esia.big_shop_backend.domain.valueobject.ids.OrderId;
 import com.esia.big_shop_backend.presentation.dto.request.order.CreateOrderRequest;
 import com.esia.big_shop_backend.presentation.dto.response.order.OrderResponse;
 import com.esia.big_shop_backend.presentation.mapper.OrderRestMapper;
@@ -27,7 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/orders")
+@RequestMapping("/orders")
 @RequiredArgsConstructor
 @Tag(name = "Order", description = "Order management APIs")
 public class OrderController {
@@ -48,14 +49,14 @@ public class OrderController {
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody @Valid CreateOrderRequest request) {
         Long userId = getUserIdFromUserDetails(userDetails);
-        CreateOrderCommand command = mapper.toCommand(request, userId);
+        CreateOrderCommand command = mapper.toCommand(userId, request);
         Order order = createOrderUseCase.execute(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(order));
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get order by ID")
-    public ResponseEntity<OrderResponse> getOrder(@PathVariable Long id) {
+    public ResponseEntity<OrderResponse> getOrder(@PathVariable OrderId id) {
         GetOrderQuery query = new GetOrderQuery(id);
         Order order = getOrderUseCase.execute(query);
         return ResponseEntity.ok(mapper.toResponse(order));
@@ -99,37 +100,43 @@ public class OrderController {
 
     @PutMapping("/{id}/cancel")
     @Operation(summary = "Cancel an order")
-    public ResponseEntity<Void> cancelOrder(@PathVariable Long id) {
-        cancelOrderUseCase.execute(id);
+    public ResponseEntity<Void> cancelOrder(@PathVariable OrderId id) {
+        CancelOrderCommand command = new CancelOrderCommand(id);
+        cancelOrderUseCase.execute(command);
         return ResponseEntity.noContent().build();
     }
     
     @PutMapping("/{id}/confirm")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Confirm an order")
-    public ResponseEntity<Void> confirmOrder(@PathVariable Long id) {
-        confirmOrderUseCase.execute(id);
+    public ResponseEntity<Void> confirmOrder(@PathVariable OrderId id) {
+        ConfirmOrderCommand command = new ConfirmOrderCommand(id);
+        confirmOrderUseCase.execute(command);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}/ship")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Ship an order")
-    public ResponseEntity<Void> shipOrder(@PathVariable Long id) {
-        shipOrderUseCase.execute(id);
+    public ResponseEntity<Void> shipOrder(@PathVariable OrderId id) {
+        ShipOrderCommand command = new ShipOrderCommand(id);
+        shipOrderUseCase.execute(command);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}/deliver")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Mark order as delivered")
-    public ResponseEntity<Void> deliverOrder(@PathVariable Long id) {
-        deliverOrderUseCase.execute(id);
+    public ResponseEntity<Void> deliverOrder(@PathVariable OrderId id) {
+        DeliverOrderCommand command = new DeliverOrderCommand(id);
+        deliverOrderUseCase.execute(command);
         return ResponseEntity.noContent().build();
     }
 
     private Long getUserIdFromUserDetails(UserDetails userDetails) {
-        // Placeholder: Implement actual user ID extraction logic
-        throw new UnsupportedOperationException("User ID extraction not implemented");
+        if (userDetails instanceof com.esia.big_shop_backend.infrastrucute.sercutity.CustomUserDetails) {
+            return ((com.esia.big_shop_backend.infrastrucute.sercutity.CustomUserDetails) userDetails).getUserId();
+        }
+        throw new IllegalStateException("UserDetails is not an instance of CustomUserDetails");
     }
 }

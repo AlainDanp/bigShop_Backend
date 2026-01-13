@@ -17,7 +17,7 @@ public class CancelOrderUseCase {
 
     @Transactional
     public Order execute(CancelOrderCommand command) {
-        Order order = orderRepository.findById(OrderId.of(command.getOrderId()))
+        Order order = orderRepository.findById(OrderId.of(command.getOrderId().getValue()))
                 .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + command.getOrderId()));
 
         orderDomainService.cancel(order);

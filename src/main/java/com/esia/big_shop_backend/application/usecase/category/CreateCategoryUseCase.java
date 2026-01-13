@@ -19,14 +19,14 @@ public class CreateCategoryUseCase {
         if (categoryRepository.existsByName(command.getName())) {
             throw new IllegalArgumentException("Category with name '" + command.getName() + "' already exists");
         }
-
         Category category = new Category(
                 null,
+                command.getParentId() != null ? command.getParentId() : null,
                 command.getName(),
                 command.getDescription(),
                 true,
                 LocalDateTime.now(),
-                LocalDateTime.now()
+                null
         );
 
         return categoryRepository.save(category);

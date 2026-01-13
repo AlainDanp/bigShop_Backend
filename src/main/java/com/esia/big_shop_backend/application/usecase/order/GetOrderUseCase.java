@@ -15,7 +15,7 @@ public class GetOrderUseCase {
 
     @Transactional(readOnly = true)
     public Order execute(GetOrderQuery query) {
-        return orderRepository.findById(OrderId.of(query.getOrderId()))
+        return orderRepository.findById(OrderId.of(query.getOrderId().getValue()))
                 .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + query.getOrderId()));
     }
 }

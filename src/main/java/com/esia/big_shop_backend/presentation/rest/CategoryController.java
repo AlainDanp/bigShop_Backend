@@ -6,6 +6,8 @@ import com.esia.big_shop_backend.application.usecase.category.command.DeleteCate
 import com.esia.big_shop_backend.application.usecase.category.command.UpdateCategoryCommand;
 import com.esia.big_shop_backend.application.usecase.category.query.GetAllCategoriesQuery;
 import com.esia.big_shop_backend.application.usecase.category.query.GetCategoryQuery;
+import com.esia.big_shop_backend.application.usecase.category.query.GetRootCategoriesQuery;
+import com.esia.big_shop_backend.application.usecase.category.query.GetSubCategoriesQuery;
 import com.esia.big_shop_backend.domain.entity.Category;
 import com.esia.big_shop_backend.presentation.dto.request.category.CreateCategoryRequest;
 import com.esia.big_shop_backend.presentation.dto.request.category.UpdateCategoryRequest;
@@ -63,12 +65,12 @@ public class CategoryController {
     public ResponseEntity<Page<CategoryResponse>> getAllCategories(Pageable pageable) {
         GetAllCategoriesQuery query = new GetAllCategoriesQuery(pageable.getPageNumber(), pageable.getPageSize());
         
-        Object result = getAllCategoriesUseCase.execute(query);
+        List<Category> result = getAllCategoriesUseCase.execute(query);
         if (result instanceof Page) {
              Page<Category> categories = (Page<Category>) result;
              return ResponseEntity.ok(categories.map(mapper::toResponse));
         } else {
-             List<Category> categories = (List<Category>) result;
+             List<Category> categories = result;
              List<CategoryResponse> responses = categories.stream().map(mapper::toResponse).collect(Collectors.toList());
              return ResponseEntity.ok(new PageImpl<>(responses, pageable, responses.size()));
         }
@@ -77,16 +79,29 @@ public class CategoryController {
     @GetMapping("/root")
     @Operation(summary = "Get root categories")
     public ResponseEntity<List<CategoryResponse>> getRootCategories() {
-        List<Category> categories = getRootCategoriesUseCase.execute();
-        return ResponseEntity.ok(categories.stream().map(mapper::toResponse).collect(Collectors.toList()));
+        GetRootCategoriesQuery query = new GetRootCategoriesQuery();
+        List<Category> categories = getRootCategoriesUseCase.execute(query);
+        return ResponseEntity.ok(
+                categories.stream()
+                        .map(mapper::toResponse)
+                        .collect(Collectors.toList())
+        );
     }
 
     @GetMapping("/{id}/subcategories")
     @Operation(summary = "Get subcategories")
     public ResponseEntity<List<CategoryResponse>> getSubCategories(@PathVariable Long id) {
-        List<Category> categories = getSubCategoriesUseCase.execute(id);
-        return ResponseEntity.ok(categories.stream().map(mapper::toResponse).collect(Collectors.toList()));
+        GetSubCategoriesQuery query = new GetSubCategoriesQuery();
+
+        List<Category> categories = getSubCategoriesUseCase.execute(query);
+
+        return ResponseEntity.ok(
+                categories.stream()
+                        .map(mapper::toResponse)
+                        .collect(Collectors.toList())
+        );
     }
+
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")

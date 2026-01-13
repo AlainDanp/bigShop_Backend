@@ -25,7 +25,7 @@ public class MobilePaymentController {
 
     private final ProcessMtnPaymentUseCase processMtnPaymentUseCase;
     private final ProcessOrangeMoneyPaymentUseCase processOrangeMoneyPaymentUseCase;
-    private final PaymentRestMapper mapper = new PaymentRestMapper();
+    private final PaymentRestMapper mapper;
 
     @PostMapping("/mtn")
     public ResponseEntity<PaymentResponse> payMtn(@RequestBody @Valid MtnPaymentRequest req, Principal principal) {
