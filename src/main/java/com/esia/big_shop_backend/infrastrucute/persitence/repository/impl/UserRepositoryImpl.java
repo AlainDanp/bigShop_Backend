@@ -4,17 +4,22 @@ import com.esia.big_shop_backend.domain.entity.User;
 import com.esia.big_shop_backend.domain.repository.UserRepository;
 import com.esia.big_shop_backend.domain.valueobject.Email;
 import com.esia.big_shop_backend.domain.valueobject.Username;
+import com.esia.big_shop_backend.domain.valueobject.ids.RoleId;
 import com.esia.big_shop_backend.domain.valueobject.ids.UserId;
+import com.esia.big_shop_backend.infrastrucute.persitence.entity.RoleJpaEntity;
 import com.esia.big_shop_backend.infrastrucute.persitence.entity.UserJpaEntity;
 import com.esia.big_shop_backend.infrastrucute.persitence.mapper.UserMapper;
+import com.esia.big_shop_backend.infrastrucute.persitence.repository.jpa.RoleJpaRepository;
 import com.esia.big_shop_backend.infrastrucute.persitence.repository.jpa.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
@@ -22,11 +27,23 @@ import java.util.stream.Collectors;
 public class UserRepositoryImpl implements UserRepository {
 
     private final UserJpaRepository jpaRepository;
+    private final RoleJpaRepository roleJpaRepository;
     private final UserMapper mapper;
 
     @Override
     public User save(User user) {
         UserJpaEntity entity = mapper.toJpaEntity(user);
+
+        // Map roles from domain roleIds to JPA entities
+        if (user.getRoleIds() != null && !user.getRoleIds().isEmpty()) {
+            Set<RoleJpaEntity> roleEntities = new HashSet<>();
+            for (RoleId roleId : user.getRoleIds()) {
+                roleJpaRepository.findById(roleId.getValue())
+                        .ifPresent(roleEntities::add);
+            }
+            entity.setRoles(roleEntities);
+        }
+
         UserJpaEntity saved = jpaRepository.save(entity);
         return mapper.toDomain(saved);
     }

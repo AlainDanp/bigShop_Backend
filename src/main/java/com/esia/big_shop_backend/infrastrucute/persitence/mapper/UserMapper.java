@@ -79,6 +79,8 @@ public class UserMapper {
         entity.setEmailVerified(domain.isEmailVerified());
         entity.setCreatedAt(domain.getCreatedAt());
         entity.setUpdatedAt(domain.getUpdatedAt());
+
+        // Roles will be set in the repository layer
         entity.setRoles(new HashSet<>());
 
         return entity;
