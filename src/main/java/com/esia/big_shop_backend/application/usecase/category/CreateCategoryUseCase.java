@@ -34,7 +34,7 @@ public class CreateCategoryUseCase {
 
         Category savedCategory = categoryRepository.save(category);
         
-        eventPublisher.publish(CategoryCreatedEvent.of(savedCategory.getId(), savedCategory.getName()));
+        eventPublisher.publish(CategoryCreatedEvent.of(savedCategory.getCategoryId(), savedCategory.getName()));
         
         return savedCategory;
     }

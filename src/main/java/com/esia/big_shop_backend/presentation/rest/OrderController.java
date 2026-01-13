@@ -102,7 +102,7 @@ public class OrderController {
     @Operation(summary = "Cancel an order")
     public ResponseEntity<Void> cancelOrder(@PathVariable OrderId id) {
         CancelOrderCommand command = new CancelOrderCommand(id);
-        cancelOrderUseCase.execute(command);
+        cancelOrderUseCase.execute(command.getOrderId());
         return ResponseEntity.noContent().build();
     }
     
@@ -120,7 +120,7 @@ public class OrderController {
     @Operation(summary = "Ship an order")
     public ResponseEntity<Void> shipOrder(@PathVariable OrderId id) {
         ShipOrderCommand command = new ShipOrderCommand(id);
-        shipOrderUseCase.execute(command);
+        shipOrderUseCase.execute(command.getOrderId());
         return ResponseEntity.noContent().build();
     }
 
@@ -129,7 +129,7 @@ public class OrderController {
     @Operation(summary = "Mark order as delivered")
     public ResponseEntity<Void> deliverOrder(@PathVariable OrderId id) {
         DeliverOrderCommand command = new DeliverOrderCommand(id);
-        deliverOrderUseCase.execute(command);
+        deliverOrderUseCase.execute(command.getOrderId());
         return ResponseEntity.noContent().build();
     }
 

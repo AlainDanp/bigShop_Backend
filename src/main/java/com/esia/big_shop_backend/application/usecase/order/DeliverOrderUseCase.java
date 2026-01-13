@@ -18,8 +18,8 @@ public class DeliverOrderUseCase {
     private final EventPublisher eventPublisher;
 
     @Transactional
-    public Order execute(Long orderId) {
-        Order order = orderRepository.findById(OrderId.of(orderId))
+    public Order execute(OrderId orderId) {
+        Order order = orderRepository.findById(OrderId.of(orderId.getValue()))
                 .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + orderId));
 
         orderDomainService.deliver(order);

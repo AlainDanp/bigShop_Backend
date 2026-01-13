@@ -27,7 +27,7 @@ public class UpdateCategoryUseCase {
 
         Category savedCategory = categoryRepository.save(category);
         
-        eventPublisher.publish(CategoryUpdatedEvent.of(savedCategory.getId()));
+        eventPublisher.publish(CategoryUpdatedEvent.of(savedCategory.getCategoryId()));
         
         return savedCategory;
     }
