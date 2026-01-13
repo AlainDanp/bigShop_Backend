@@ -1,13 +1,16 @@
 package com.esia.big_shop_backend.application.usecase.order;
 
+import com.esia.big_shop_backend.application.port.output.EventPublisher;
 import com.esia.big_shop_backend.application.usecase.order.command.CreateOrderCommand;
 import com.esia.big_shop_backend.domain.entity.Order;
 import com.esia.big_shop_backend.domain.entity.OrderItem;
 import com.esia.big_shop_backend.domain.entity.Product;
+import com.esia.big_shop_backend.domain.event.OrderCreatedEvent;
 import com.esia.big_shop_backend.domain.repository.OrderRepository;
 import com.esia.big_shop_backend.domain.repository.ProductRepository;
 import com.esia.big_shop_backend.domain.service.OrderDomainService;
 import com.esia.big_shop_backend.domain.service.ProductDomainService;
+import com.esia.big_shop_backend.domain.valueobject.Money;
 import com.esia.big_shop_backend.domain.valueobject.PhoneNumber;
 import com.esia.big_shop_backend.domain.valueobject.ShippingInfo;
 import com.esia.big_shop_backend.domain.valueobject.enums.OrderStatus;
@@ -28,6 +31,7 @@ public class CreateOrderUseCase {
     private final ProductRepository productRepository;
     private final ProductDomainService productDomainService;
     private final OrderDomainService orderDomainService;
+    private final EventPublisher eventPublisher;
 
     @Transactional
     public Order execute(CreateOrderCommand command) {
@@ -86,6 +90,15 @@ public class CreateOrderUseCase {
             orderDomainService.addItem(order, orderItem);
         }
 
-        return orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
+
+        // Publish event
+        eventPublisher.publish(OrderCreatedEvent.of(
+                savedOrder.getId(),
+                savedOrder.getUserId(),
+                new Money(savedOrder.getTotalAmount(), "XAF") // Assuming currency is XAF as per other files
+        ));
+
+        return savedOrder;
     }
 }

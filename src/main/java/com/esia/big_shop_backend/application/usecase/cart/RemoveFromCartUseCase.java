@@ -1,8 +1,10 @@
 package com.esia.big_shop_backend.application.usecase.cart;
 
+import com.esia.big_shop_backend.application.port.output.EventPublisher;
 import com.esia.big_shop_backend.application.usecase.cart.command.RemoveFromCartCommand;
 import com.esia.big_shop_backend.domain.entity.Cart;
 import com.esia.big_shop_backend.domain.entity.Product;
+import com.esia.big_shop_backend.domain.event.CartUpdatedEvent;
 import com.esia.big_shop_backend.domain.repository.CartRepository;
 import com.esia.big_shop_backend.domain.repository.ProductRepository;
 import com.esia.big_shop_backend.domain.service.CartService;
@@ -19,6 +21,7 @@ public class RemoveFromCartUseCase {
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
     private final CartService cartService;
+    private final EventPublisher eventPublisher;
 
     @Transactional
     public Cart execute(RemoveFromCartCommand command) {
@@ -30,6 +33,15 @@ public class RemoveFromCartUseCase {
 
         cartService.removeItem(cart, product);
 
-        return cartRepository.save(cart);
+        Cart savedCart = cartRepository.save(cart);
+
+        eventPublisher.publish(CartUpdatedEvent.of(
+                savedCart.getId(),
+                savedCart.getUserId(),
+                cartService.getTotalPrice(savedCart),
+                "REMOVE_ITEM"
+        ));
+
+        return savedCart;
     }
 }

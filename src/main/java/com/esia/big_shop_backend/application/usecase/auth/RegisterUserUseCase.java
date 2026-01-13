@@ -1,11 +1,13 @@
 package com.esia.big_shop_backend.application.usecase.auth;
 
+import com.esia.big_shop_backend.application.port.output.EventPublisher;
 import com.esia.big_shop_backend.application.port.output.PasswordEncoderPort;
 import com.esia.big_shop_backend.application.port.output.TokenPort;
 import com.esia.big_shop_backend.application.usecase.auth.command.RegisterUserCommand;
 import com.esia.big_shop_backend.application.usecase.auth.result.RegisterResult;
 import com.esia.big_shop_backend.domain.entity.Role;
 import com.esia.big_shop_backend.domain.entity.User;
+import com.esia.big_shop_backend.domain.event.UserRegisteredEvent;
 import com.esia.big_shop_backend.domain.repository.RoleRepository;
 import com.esia.big_shop_backend.domain.repository.UserRepository;
 import com.esia.big_shop_backend.domain.valueobject.Email;
@@ -16,6 +18,7 @@ import com.esia.big_shop_backend.domain.valueobject.enums.RoleEnum;
 import com.esia.big_shop_backend.domain.valueobject.ids.RoleId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -30,7 +33,9 @@ public class RegisterUserUseCase {
     private final RoleRepository roleRepository;
     private final PasswordEncoderPort passwordEncoder;
     private final TokenPort tokenProvider;
+    private final EventPublisher eventPublisher;
 
+    @Transactional
     public RegisterResult execute(RegisterUserCommand command) {
         if (userRepository.existsByEmail(new Email(command.getEmail()))) {
             throw new RuntimeException("Email already in use");
@@ -47,14 +52,13 @@ public class RegisterUserUseCase {
                 .collect(Collectors.toSet());
 
         String usernameStr = command.getEmail().split("@")[0];
-        // Ensure username meets requirements (length, chars)
         if (usernameStr.length() < 3) {
             usernameStr = usernameStr + "user";
         }
         usernameStr = usernameStr.replaceAll("[^a-zA-Z0-9_-]", "");
 
         User user = new User(
-                null, // ID will be generated
+                null, 
                 Username.of(usernameStr),
                 new Email(command.getEmail()),
                 Password.fromPlainText(command.getPassword(), new org.springframework.security.crypto.password.PasswordEncoder() {
@@ -71,13 +75,15 @@ public class RegisterUserUseCase {
                 new PersonalInfo(command.getFirstName(), command.getLastName(), null, null),
                 roleIds,
                 roles,
-                true, // Active by default for now
-                false, // Email not verified
+                true, 
+                false, 
                 LocalDateTime.now(),
                 LocalDateTime.now()
         );
 
         User savedUser = userRepository.save(user);
+
+        eventPublisher.publish(UserRegisteredEvent.of(savedUser.getId(), savedUser.getEmail().getValue()));
 
         String token = tokenProvider.generateToken(savedUser.getId(), savedUser.getUsername().getValue());
 

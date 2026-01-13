@@ -1,7 +1,9 @@
 package com.esia.big_shop_backend.application.usecase.product;
 
+import com.esia.big_shop_backend.application.port.output.EventPublisher;
 import com.esia.big_shop_backend.application.usecase.product.command.AddProductImageCommand;
 import com.esia.big_shop_backend.domain.entity.ProductImage;
+import com.esia.big_shop_backend.domain.event.ProductUpdatedEvent;
 import com.esia.big_shop_backend.domain.repository.ProductImageRepository;
 import com.esia.big_shop_backend.domain.repository.ProductRepository;
 import com.esia.big_shop_backend.domain.valueobject.ids.ProductId;
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AddProductImageUseCase {
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
+    private final EventPublisher eventPublisher;
 
     @Transactional
     public ProductImage execute(AddProductImageCommand command) {
@@ -30,6 +33,10 @@ public class AddProductImageUseCase {
                 command.isPrimary()
         );
 
-        return productImageRepository.save(productImage);
+        ProductImage savedImage = productImageRepository.save(productImage);
+        
+        eventPublisher.publish(ProductUpdatedEvent.of(productId));
+        
+        return savedImage;
     }
 }

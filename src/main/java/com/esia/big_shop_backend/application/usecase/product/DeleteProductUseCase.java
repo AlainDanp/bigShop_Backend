@@ -1,5 +1,7 @@
 package com.esia.big_shop_backend.application.usecase.product;
 
+import com.esia.big_shop_backend.application.port.output.EventPublisher;
+import com.esia.big_shop_backend.domain.event.ProductDeletedEvent;
 import com.esia.big_shop_backend.domain.repository.ProductRepository;
 import com.esia.big_shop_backend.domain.valueobject.ids.ProductId;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class DeleteProductUseCase {
     private final ProductRepository productRepository;
+    private final EventPublisher eventPublisher;
 
     @Transactional
     public void execute(Long productId) {
@@ -18,5 +21,7 @@ public class DeleteProductUseCase {
             throw new IllegalArgumentException("Product not found with id: " + productId);
         }
         productRepository.deleteById(id);
+        
+        eventPublisher.publish(ProductDeletedEvent.of(id));
     }
 }
