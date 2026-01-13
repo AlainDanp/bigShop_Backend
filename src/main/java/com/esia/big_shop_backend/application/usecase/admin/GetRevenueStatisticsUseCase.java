@@ -72,4 +72,9 @@ public class GetRevenueStatisticsUseCase {
                 revenueByDate
         );
     }
+
+    public RevenueStatistics execute(LocalDate startDate, LocalDate endDate) {
+        GetRevenueStatisticsQuery query = new GetRevenueStatisticsQuery(startDate, endDate, "USD");
+        return execute(query);
+    }
 }

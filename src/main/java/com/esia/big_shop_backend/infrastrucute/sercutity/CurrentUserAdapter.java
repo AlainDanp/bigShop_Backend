@@ -17,4 +17,11 @@ public class CurrentUserAdapter implements CurrentUserPort {
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + email))
                 .getId();
     }
+
+    @Override
+    public Long getUserIdByName(String name) {
+        return userJpaRepository.findByUsername(name)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + name))
+                .getId();
+    }
 }

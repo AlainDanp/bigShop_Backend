@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/admin/dashboard")
+@RequestMapping("/dashboard")
 @RequiredArgsConstructor
 @Tag(name = "Admin Dashboard", description = "Admin dashboard statistics")
 @PreAuthorize("hasRole('ADMIN')")

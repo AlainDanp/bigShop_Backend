@@ -1,6 +1,7 @@
 package com.esia.big_shop_backend.domain.entity;
 
 import com.esia.big_shop_backend.domain.valueobject.ids.CategoryId;
+import com.esia.big_shop_backend.domain.valueobject.ids.ParentId;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,8 +12,8 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 public class Category {
-    private final CategoryId id;
-    private CategoryId parentId;
+    private final CategoryId categoryId;
+    private Long parentId;
     private String name;
     private String description;
     private boolean active;

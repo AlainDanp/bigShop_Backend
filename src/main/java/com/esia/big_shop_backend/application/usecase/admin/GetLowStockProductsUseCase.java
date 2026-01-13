@@ -16,10 +16,10 @@ public class GetLowStockProductsUseCase {
 
     @Transactional(readOnly = true)
     public List<Product> execute(int query) {
-        List<Product> allProducts = productRepository.findAll(query.getPage(), query.getSize());
+        List<Product> allProducts = productRepository.findAll(query, query);
 
         return allProducts.stream()
-                .filter(product -> product.getStockQuantity() <= query.getThreshold())
+                .filter(product -> product.getStockQuantity() <= query)
                 .filter(Product::isActive)
                 .sorted((a, b) -> Integer.compare(a.getStockQuantity(), b.getStockQuantity()))
                 .collect(Collectors.toList());

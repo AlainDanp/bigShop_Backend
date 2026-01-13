@@ -1,6 +1,5 @@
 package com.esia.big_shop_backend.application.usecase.admin;
 
-import com.esia.big_shop_backend.application.usecase.admin.query.GetTopSellingProductsQuery;
 import com.esia.big_shop_backend.application.usecase.admin.result.TopProductStatistic;
 import com.esia.big_shop_backend.domain.entity.Order;
 import com.esia.big_shop_backend.domain.entity.OrderItem;
@@ -21,8 +20,8 @@ public class GetTopSellingProductsUseCase {
     private final OrderRepository orderRepository;
 
     @Transactional(readOnly = true)
-    public List<TopProductStatistic> execute(GetTopSellingProductsQuery query) {
-        // Get all delivered orders
+    public List<TopProductStatistic> execute(int query) {
+
         List<Order> allOrders = orderRepository.findAll(0, Integer.MAX_VALUE);
         List<Order> deliveredOrders = allOrders.stream()
                 .filter(order -> order.getStatus() == OrderStatus.DELIVERED)
@@ -51,7 +50,7 @@ public class GetTopSellingProductsUseCase {
                         entry.getValue().revenue
                 ))
                 .sorted((a, b) -> Integer.compare(b.getTotalSold(), a.getTotalSold()))
-                .limit(query.getLimit())
+                .limit(query)
                 .collect(Collectors.toList());
     }
 

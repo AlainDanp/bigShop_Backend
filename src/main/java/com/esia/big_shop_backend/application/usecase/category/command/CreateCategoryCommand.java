@@ -7,5 +7,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class CreateCategoryCommand {
     private final String name;
+    private final Long parentId;
     private final String description;
 }

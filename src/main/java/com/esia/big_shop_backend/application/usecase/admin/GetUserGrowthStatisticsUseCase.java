@@ -64,4 +64,44 @@ public class GetUserGrowthStatisticsUseCase {
                 userGrowthByDate
         );
     }
+
+    public UserGrowthStatistics execute(LocalDate startDate, LocalDate endDate) {
+        List<User> allUsers = userRepository.findAll(0, Integer.MAX_VALUE);
+
+        long totalUsers = allUsers.size();
+
+        long activeUsers = allUsers.stream()
+                .filter(User::isActive)
+                .count();
+
+        // Count new users in the specified date range
+        long newUsersInRange = allUsers.stream()
+                .filter(user -> {
+                    LocalDate createdDate = user.getCreatedAt().toLocalDate();
+                    return (createdDate.isEqual(startDate) || createdDate.isAfter(startDate)) &&
+                           (createdDate.isEqual(endDate) || createdDate.isBefore(endDate));
+                })
+                .count();
+
+        // Group user growth by date within the specified range
+        Map<LocalDate, Long> userGrowthByDate = new HashMap<>();
+        LocalDate currentDate = startDate;
+        while (!currentDate.isAfter(endDate)) {
+            LocalDate date = currentDate;
+            long newUsers = allUsers.stream()
+                    .filter(user -> user.getCreatedAt().toLocalDate().equals(date))
+                    .count();
+            userGrowthByDate.put(date, newUsers);
+            currentDate = currentDate.plusDays(1);
+        }
+
+        return new UserGrowthStatistics(
+                totalUsers,
+                activeUsers,
+                newUsersInRange,
+                0,
+                0,
+                userGrowthByDate
+        );
+    }
 }

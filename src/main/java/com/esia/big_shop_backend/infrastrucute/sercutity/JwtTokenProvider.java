@@ -3,29 +3,38 @@ package com.esia.big_shop_backend.infrastrucute.sercutity;
 import com.esia.big_shop_backend.application.port.output.TokenPort;
 import com.esia.big_shop_backend.domain.valueobject.ids.UserId;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
 @Slf4j
 public class JwtTokenProvider implements TokenPort {
 
+
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    @Value("${jwt.expiration:86400000}") // Default: 24 hours
+    // Expiration en millisecondes (default 24h)
+    @Value("${jwt.expiration:86400000}")
     private long jwtExpirationMs;
 
+    /**
+     * Convertit la clé Base64 en SecretKey sécurisée pour HS512
+     */
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
+    /**
+     * Génère un token JWT pour un utilisateur
+     */
     @Override
     public String generateToken(UserId userId, String username) {
         Date now = new Date();
@@ -40,6 +49,9 @@ public class JwtTokenProvider implements TokenPort {
                 .compact();
     }
 
+    /**
+     * Valide un token JWT
+     */
     @Override
     public boolean validateToken(String token) {
         try {
@@ -60,6 +72,9 @@ public class JwtTokenProvider implements TokenPort {
         return false;
     }
 
+    /**
+     * Récupère l'ID utilisateur depuis le token
+     */
     @Override
     public UserId getUserIdFromToken(String token) {
         Claims claims = Jwts.parserBuilder()
@@ -72,6 +87,9 @@ public class JwtTokenProvider implements TokenPort {
         return UserId.of(userId);
     }
 
+    /**
+     * Récupère le nom d'utilisateur depuis le token
+     */
     @Override
     public String getUsernameFromToken(String token) {
         Claims claims = Jwts.parserBuilder()

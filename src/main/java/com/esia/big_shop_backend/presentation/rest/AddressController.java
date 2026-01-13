@@ -4,6 +4,7 @@ import com.esia.big_shop_backend.application.usecase.address.*;
 import com.esia.big_shop_backend.application.usecase.address.command.CreateAddressCommand;
 import com.esia.big_shop_backend.application.usecase.address.command.UpdateAddressCommand;
 import com.esia.big_shop_backend.application.usecase.address.query.GetAddressQuery;
+import com.esia.big_shop_backend.domain.entity.Address;
 import com.esia.big_shop_backend.presentation.dto.request.address.CreateAddressRequest;
 import com.esia.big_shop_backend.presentation.dto.request.address.UpdateAddressRequest;
 import com.esia.big_shop_backend.presentation.dto.response.address.AddressResponse;
@@ -29,8 +30,7 @@ public class AddressController {
     private final UpdateAddressUseCase updateAddressUseCase;
     private final DeleteAddressUseCase deleteAddressUseCase;
     private final SetDefaultAddressUseCase setDefaultAddressUseCase;
-
-    private final AddressRestMapper mapper = new AddressRestMapper();
+    private final AddressRestMapper mapper;
 
     @PostMapping
     public ResponseEntity<AddressResponse> createAddress(@RequestBody @Valid CreateAddressRequest req, Principal principal) {
@@ -84,7 +84,7 @@ public class AddressController {
     @PutMapping("/{id}/default")
     public ResponseEntity<AddressResponse> setDefaultAddress(@PathVariable Long id, Principal principal) {
         var updated = setDefaultAddressUseCase.execute(principal.getName(), id);
-        return ResponseEntity.ok(mapper.toResponse(updated));
+        return ResponseEntity.ok(mapper.toResponse((Address) updated));
     }
 
     @DeleteMapping("/{id}")

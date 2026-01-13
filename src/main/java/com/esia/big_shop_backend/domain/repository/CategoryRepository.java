@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface CategoryRepository {
     Category save(Category category);
     Optional<Category> findById(CategoryId id);
-    List<Category> findAll(int pageable);
+    List<Category> findAll(int page, int size);
     List<Category> findRootCategories(int page);
     List<Category> findSubCategories(CategoryId parentId, int page);
     void deleteById(CategoryId id);
