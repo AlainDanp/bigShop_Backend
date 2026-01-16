@@ -17,9 +17,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/cart")
@@ -36,8 +37,8 @@ public class CartController {
 
     @GetMapping
     @Operation(summary = "Get current user's cart")
-    public ResponseEntity<CartResponse> getCart(@AuthenticationPrincipal UserDetails userDetails) {
-        Long userId = getUserIdFromUserDetails(userDetails);
+    public ResponseEntity<CartResponse> getCart(@org.springframework.security.core.annotation.AuthenticationPrincipal CustomUserDetails user) {
+        Long userId = user.getUserId();
         Cart cart = getOrCreateCartUseCase.execute(UserId.of(userId));
         return ResponseEntity.ok(cartRestMapper.toResponse(cart));
     }
@@ -45,49 +46,39 @@ public class CartController {
     @PostMapping("/items")
     @Operation(summary = "Add item to cart")
     public ResponseEntity<CartResponse> addToCart(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @Valid @RequestBody AddToCartRequest request) {
-        Long userId = getUserIdFromUserDetails(userDetails);
+            @org.springframework.security.core.annotation.AuthenticationPrincipal CustomUserDetails user,
+            @Valid @RequestBody AddToCartRequest request
+    ) {
+        Long userId = user.getUserId();
         AddToCartCommand command = new AddToCartCommand(userId, request.getProductId(), request.getQuantity());
         Cart cart = addToCartUseCase.execute(command);
         return ResponseEntity.ok(cartRestMapper.toResponse(cart));
     }
 
-    @PutMapping("/items/{productId}")
+    @PutMapping("/items/{itemId}")
     @Operation(summary = "Update cart item quantity")
     public ResponseEntity<CartResponse> updateCartItem(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @PathVariable Long productId,
-            @Valid @RequestBody UpdateCartItemRequest request) {
-        Long userId = getUserIdFromUserDetails(userDetails);
-        UpdateCartItemCommand command = new UpdateCartItemCommand(userId, productId, request.getQuantity());
+            @org.springframework.security.core.annotation.AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable Long itemId,
+            @Valid @RequestBody UpdateCartItemRequest request
+    ) {
+        Long userId = user.getUserId();
+        UpdateCartItemCommand command = new UpdateCartItemCommand(userId, itemId, request.getQuantity());
         Cart cart = updateCartItemUseCase.execute(command);
-        return ResponseEntity.ok(cartRestMapper.toResponse(cart));
-    }
-
-    @DeleteMapping("/items/{productId}")
-    @Operation(summary = "Remove item from cart")
-    public ResponseEntity<CartResponse> removeFromCart(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @PathVariable Long productId) {
-        Long userId = getUserIdFromUserDetails(userDetails);
-        RemoveFromCartCommand command = new RemoveFromCartCommand(userId, productId);
-        Cart cart = removeFromCartUseCase.execute(command);
         return ResponseEntity.ok(cartRestMapper.toResponse(cart));
     }
 
     @DeleteMapping
     @Operation(summary = "Clear cart")
-    public ResponseEntity<Void> clearCart(@AuthenticationPrincipal UserDetails userDetails) {
-        Long userId = getUserIdFromUserDetails(userDetails);
+    public ResponseEntity<Map<String, String>> clearCart(
+            @org.springframework.security.core.annotation.AuthenticationPrincipal CustomUserDetails user
+    ) {
+        Long userId = user.getUserId();
         ClearCartCommand command = new ClearCartCommand(userId);
         clearCartUseCase.execute(command);
-        return ResponseEntity.noContent().build();
-    }
-    private Long getUserIdFromUserDetails(UserDetails userDetails) {
-        if (userDetails instanceof CustomUserDetails) {
-            return ((com.esia.big_shop_backend.infrastrucute.sercutity.CustomUserDetails) userDetails).getUserId();
-        }
-        throw new IllegalStateException("UserDetails is not an instance of CustomUserDetails");
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Cart cleared successfully");
+        return ResponseEntity.ok(response);
     }
 }

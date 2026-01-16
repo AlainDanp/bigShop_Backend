@@ -18,13 +18,4 @@ import org.springframework.web.bind.annotation.*;
 public class RoleController {
 
     private final AssignRoleToUserUseCase assignRoleToUserUseCase;
-
-    @PostMapping("/assign")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Assign role to user")
-    public ResponseEntity<Void> assignRoleToUser(@RequestBody @Valid AssignRoleRequest request) {
-        AssignRoleCommand command = new AssignRoleCommand(request.getUserId(), request.getRoleId());
-        assignRoleToUserUseCase.execute(command);
-        return ResponseEntity.ok().build();
-    }
 }

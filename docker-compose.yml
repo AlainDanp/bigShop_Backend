@@ -27,10 +27,10 @@ services:
     image: mysql:8.0
     container_name: mysql_big_shop
     environment:
-      MYSQL_ROOT_PASSWORD: Jeux@joneA56
+      MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: big_shop
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
 

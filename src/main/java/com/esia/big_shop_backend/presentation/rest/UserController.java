@@ -46,18 +46,6 @@ public class UserController {
         return ResponseEntity.ok(mapper.toResponse(user));
     }
 
-    @PutMapping("/profile")
-    @Operation(summary = "Update current user profile")
-    public ResponseEntity<UserResponse> updateUserProfile(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @RequestBody @Valid UpdateUserProfileRequest request) {
-        Long userId = getUserIdFromUserDetails(userDetails);
-        UpdateUserProfileCommand command = mapper.toUpdateCommand(userId, request);
-        User user = updateUserProfileUseCase.execute(command);
-        return ResponseEntity.ok(mapper.toResponse(user));
-    }
-
-
     private Long getUserIdFromUserDetails(UserDetails userDetails) {
         if (userDetails instanceof com.esia.big_shop_backend.infrastrucute.sercutity.CustomUserDetails) {
             return ((com.esia.big_shop_backend.infrastrucute.sercutity.CustomUserDetails) userDetails).getUserId();
