@@ -14,8 +14,9 @@ public class PaymentConfig {
     public ProcessStripePaymentUseCase processStripePaymentUseCase(
             PaymentRepository paymentRepository,
             StripePaymentPort stripePaymentPort,
-            CurrentUserPort currentUserPort) {
-        return new ProcessStripePaymentUseCase(paymentRepository, stripePaymentPort, currentUserPort, null);
+            CurrentUserPort currentUserPort,
+            EventPublisher eventPublisher) {
+        return new ProcessStripePaymentUseCase(paymentRepository, stripePaymentPort, currentUserPort, eventPublisher);
     }
 
     @Bean

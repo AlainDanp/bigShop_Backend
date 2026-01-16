@@ -8,6 +8,7 @@ import com.esia.big_shop_backend.domain.valueobject.enums.OrderStatus;
 import com.esia.big_shop_backend.domain.valueobject.ids.OrderId;
 import com.esia.big_shop_backend.domain.valueobject.ids.UserId;
 import com.esia.big_shop_backend.infrastrucute.persitence.entity.OrderJpaEntity;
+import com.esia.big_shop_backend.infrastrucute.persitence.entity.OrderItemJpaEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -72,9 +73,14 @@ public class OrderMapper {
         entity.setUpdatedAt(domain.getUpdatedAt());
 
         if (domain.getItems() != null) {
-            entity.setItems(domain.getItems().stream()
+            List<OrderItemJpaEntity> itemEntities = domain.getItems().stream()
                     .map(orderItemMapper::toJpaEntity)
-                    .collect(Collectors.toList()));
+                    .collect(Collectors.toList());
+            
+            // IMPORTANT: Set the parent reference for each item
+            itemEntities.forEach(item -> item.setOrder(entity));
+            
+            entity.setItems(itemEntities);
         }
 
         return entity;

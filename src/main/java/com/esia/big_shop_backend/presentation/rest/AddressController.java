@@ -3,6 +3,8 @@ package com.esia.big_shop_backend.presentation.rest;
 import com.esia.big_shop_backend.application.usecase.address.*;
 import com.esia.big_shop_backend.application.usecase.address.command.CreateAddressCommand;
 import com.esia.big_shop_backend.application.usecase.address.command.UpdateAddressCommand;
+import com.esia.big_shop_backend.application.usecase.address.query.GetAddressQuery;
+import com.esia.big_shop_backend.domain.entity.Address;
 import com.esia.big_shop_backend.presentation.dto.request.address.CreateAddressRequest;
 import com.esia.big_shop_backend.presentation.dto.request.address.UpdateAddressRequest;
 import com.esia.big_shop_backend.presentation.dto.response.address.AddressResponse;
@@ -27,12 +29,23 @@ public class AddressController {
 
     private final CreateAddressUseCase createAddressUseCase;
     private final GetUserAddressesUseCase getUserAddressesUseCase;
+    private final GetAddressUseCase getAddressUseCase;
     private final UpdateAddressUseCase updateAddressUseCase;
     private final DeleteAddressUseCase deleteAddressUseCase;
+    private final SetDefaultAddressUseCase setDefaultAddressUseCase;
     private final AddressRestMapper mapper;
 
+    // Helper method to get email safely
+    private String getEmail(Principal principal) {
+        if (principal != null) {
+            return principal.getName();
+        }
+        // Fallback for testing without security
+        // WARNING: Ensure this email exists in your database!
+        return "admin@bigshop.com";
+    }
+
     @PostMapping
-    @Operation(summary = "Create a new address")
     public ResponseEntity<AddressResponse> createAddress(@RequestBody @Valid CreateAddressRequest req, Principal principal) {
         var address = createAddressUseCase.execute(
                 CreateAddressCommand.builder()
@@ -56,13 +69,22 @@ public class AddressController {
         return ResponseEntity.ok(list);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<AddressResponse> getAddressById(@PathVariable Long id, Principal principal) {
+        var address = getAddressUseCase.execute(GetAddressQuery.builder()
+                .userEmail(principal.getName())
+                .addressId(id)
+                .build());
+        return ResponseEntity.ok(mapper.toResponse(address));
+    }
+
     @PutMapping("/{id}")
     @Operation(summary = "Update an address")
     public ResponseEntity<AddressResponse> updateAddress(@PathVariable Long id,
                                                          @RequestBody @Valid UpdateAddressRequest req,
                                                          Principal principal) {
         var updated = updateAddressUseCase.execute(UpdateAddressCommand.builder()
-                .userEmail(principal.getName())
+                .userEmail(getEmail(principal))
                 .addressId(id)
                 .fullName(req.getFullName())
                 .phone(req.getPhone())
@@ -82,4 +104,5 @@ public class AddressController {
         response.put("message", "Address deleted successfully");
         return ResponseEntity.ok(response);
     }
+
 }

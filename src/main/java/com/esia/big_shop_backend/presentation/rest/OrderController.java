@@ -3,7 +3,6 @@ package com.esia.big_shop_backend.presentation.rest;
 import com.esia.big_shop_backend.application.usecase.order.*;
 import com.esia.big_shop_backend.application.usecase.order.command.*;
 import com.esia.big_shop_backend.application.usecase.order.query.GetAllOrdersQuery;
-import com.esia.big_shop_backend.application.usecase.order.query.GetOrderQuery;
 import com.esia.big_shop_backend.domain.entity.Order;
 import com.esia.big_shop_backend.domain.valueobject.ids.OrderId;
 import com.esia.big_shop_backend.presentation.dto.request.order.CreateOrderRequest;
@@ -57,15 +56,14 @@ public class OrderController {
 
         Object result = getAllOrdersUseCase.execute(query);
         if (result instanceof Page) {
-             Page<Order> orders = (Page<Order>) result;
-             return ResponseEntity.ok(orders.map(mapper::toResponse));
+            Page<Order> orders = (Page<Order>) result;
+            return ResponseEntity.ok(orders.map(mapper::toResponse));
         } else {
-             List<Order> orders = (List<Order>) result;
-             List<OrderResponse> responses = orders.stream().map(mapper::toResponse).collect(Collectors.toList());
-             return ResponseEntity.ok(new PageImpl<>(responses, pageable, responses.size()));
+            List<Order> orders = (List<Order>) result;
+            List<OrderResponse> responses = orders.stream().map(mapper::toResponse).collect(Collectors.toList());
+            return ResponseEntity.ok(new PageImpl<>(responses, pageable, responses.size()));
         }
     }
-
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Cancel an order")
