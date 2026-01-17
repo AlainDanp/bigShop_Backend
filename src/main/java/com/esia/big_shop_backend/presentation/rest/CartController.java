@@ -21,6 +21,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/cart")
 @RequiredArgsConstructor
@@ -62,17 +65,6 @@ public class CartController {
         Long userId = getUserIdFromUserDetails(userDetails);
         UpdateCartItemCommand command = new UpdateCartItemCommand(userId, productId, request.getQuantity());
         Cart cart = updateCartItemUseCase.execute(command);
-        return ResponseEntity.ok(cartRestMapper.toResponse(cart));
-    }
-
-    @DeleteMapping("/items/{productId}")
-    @Operation(summary = "Remove item from cart")
-    public ResponseEntity<CartResponse> removeFromCart(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @PathVariable Long productId) {
-        Long userId = getUserIdFromUserDetails(userDetails);
-        RemoveFromCartCommand command = new RemoveFromCartCommand(userId, productId);
-        Cart cart = removeFromCartUseCase.execute(command);
         return ResponseEntity.ok(cartRestMapper.toResponse(cart));
     }
 

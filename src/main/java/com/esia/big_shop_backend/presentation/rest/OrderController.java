@@ -3,8 +3,6 @@ package com.esia.big_shop_backend.presentation.rest;
 import com.esia.big_shop_backend.application.usecase.order.*;
 import com.esia.big_shop_backend.application.usecase.order.command.*;
 import com.esia.big_shop_backend.application.usecase.order.query.GetAllOrdersQuery;
-import com.esia.big_shop_backend.application.usecase.order.query.GetOrderQuery;
-import com.esia.big_shop_backend.application.usecase.order.query.GetUserOrdersQuery;
 import com.esia.big_shop_backend.domain.entity.Order;
 import com.esia.big_shop_backend.domain.valueobject.ids.OrderId;
 import com.esia.big_shop_backend.presentation.dto.request.order.CreateOrderRequest;
@@ -35,12 +33,8 @@ public class OrderController {
 
     private final CreateOrderUseCase createOrderUseCase;
     private final GetOrderUseCase getOrderUseCase;
-    private final GetUserOrdersUseCase getUserOrdersUseCase;
     private final GetAllOrdersUseCase getAllOrdersUseCase;
     private final CancelOrderUseCase cancelOrderUseCase;
-    private final ConfirmOrderUseCase confirmOrderUseCase;
-    private final ShipOrderUseCase shipOrderUseCase;
-    private final DeliverOrderUseCase deliverOrderUseCase;
     private final OrderRestMapper mapper;
 
     @PostMapping
@@ -54,82 +48,28 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(order));
     }
 
-    @GetMapping("/{id}")
-    @Operation(summary = "Get order by ID")
-    public ResponseEntity<OrderResponse> getOrder(@PathVariable OrderId id) {
-        GetOrderQuery query = new GetOrderQuery(id);
-        Order order = getOrderUseCase.execute(query);
-        return ResponseEntity.ok(mapper.toResponse(order));
-    }
-
-    @GetMapping("/my-orders")
-    @Operation(summary = "Get current user's orders")
-    public ResponseEntity<Page<OrderResponse>> getMyOrders(
-            @AuthenticationPrincipal UserDetails userDetails,
-            Pageable pageable) {
-        Long userId = getUserIdFromUserDetails(userDetails);
-        GetUserOrdersQuery query = new GetUserOrdersQuery(userId, pageable.getPageNumber(), pageable.getPageSize());
-        
-        Object result = getUserOrdersUseCase.execute(query);
-        if (result instanceof Page) {
-             Page<Order> orders = (Page<Order>) result;
-             return ResponseEntity.ok(orders.map(mapper::toResponse));
-        } else {
-             List<Order> orders = (List<Order>) result;
-             List<OrderResponse> responses = orders.stream().map(mapper::toResponse).collect(Collectors.toList());
-             return ResponseEntity.ok(new PageImpl<>(responses, pageable, responses.size()));
-        }
-    }
-
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get all orders (Admin)")
     public ResponseEntity<Page<OrderResponse>> getAllOrders(Pageable pageable) {
         GetAllOrdersQuery query = new GetAllOrdersQuery(pageable.getPageNumber(), pageable.getPageSize());
-        
+
         Object result = getAllOrdersUseCase.execute(query);
         if (result instanceof Page) {
-             Page<Order> orders = (Page<Order>) result;
-             return ResponseEntity.ok(orders.map(mapper::toResponse));
+            Page<Order> orders = (Page<Order>) result;
+            return ResponseEntity.ok(orders.map(mapper::toResponse));
         } else {
-             List<Order> orders = (List<Order>) result;
-             List<OrderResponse> responses = orders.stream().map(mapper::toResponse).collect(Collectors.toList());
-             return ResponseEntity.ok(new PageImpl<>(responses, pageable, responses.size()));
+            List<Order> orders = (List<Order>) result;
+            List<OrderResponse> responses = orders.stream().map(mapper::toResponse).collect(Collectors.toList());
+            return ResponseEntity.ok(new PageImpl<>(responses, pageable, responses.size()));
         }
     }
 
-    @PutMapping("/{id}/cancel")
+    @DeleteMapping("/{id}")
     @Operation(summary = "Cancel an order")
     public ResponseEntity<Void> cancelOrder(@PathVariable OrderId id) {
         CancelOrderCommand command = new CancelOrderCommand(id);
         cancelOrderUseCase.execute(command.getOrderId());
-        return ResponseEntity.noContent().build();
-    }
-    
-    @PutMapping("/{id}/confirm")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Confirm an order")
-    public ResponseEntity<Void> confirmOrder(@PathVariable OrderId id) {
-        ConfirmOrderCommand command = new ConfirmOrderCommand(id);
-        confirmOrderUseCase.execute(command);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PutMapping("/{id}/ship")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Ship an order")
-    public ResponseEntity<Void> shipOrder(@PathVariable OrderId id) {
-        ShipOrderCommand command = new ShipOrderCommand(id);
-        shipOrderUseCase.execute(command.getOrderId());
-        return ResponseEntity.noContent().build();
-    }
-
-    @PutMapping("/{id}/deliver")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Mark order as delivered")
-    public ResponseEntity<Void> deliverOrder(@PathVariable OrderId id) {
-        DeliverOrderCommand command = new DeliverOrderCommand(id);
-        deliverOrderUseCase.execute(command.getOrderId());
         return ResponseEntity.noContent().build();
     }
 

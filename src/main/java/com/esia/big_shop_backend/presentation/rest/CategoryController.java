@@ -6,8 +6,6 @@ import com.esia.big_shop_backend.application.usecase.category.command.DeleteCate
 import com.esia.big_shop_backend.application.usecase.category.command.UpdateCategoryCommand;
 import com.esia.big_shop_backend.application.usecase.category.query.GetAllCategoriesQuery;
 import com.esia.big_shop_backend.application.usecase.category.query.GetCategoryQuery;
-import com.esia.big_shop_backend.application.usecase.category.query.GetRootCategoriesQuery;
-import com.esia.big_shop_backend.application.usecase.category.query.GetSubCategoriesQuery;
 import com.esia.big_shop_backend.domain.entity.Category;
 import com.esia.big_shop_backend.presentation.dto.request.category.CreateCategoryRequest;
 import com.esia.big_shop_backend.presentation.dto.request.category.UpdateCategoryRequest;
@@ -38,8 +36,6 @@ public class CategoryController {
     private final UpdateCategoryUseCase updateCategoryUseCase;
     private final DeleteCategoryUseCase deleteCategoryUseCase;
     private final GetAllCategoriesUseCase getAllCategoriesUseCase;
-    private final GetSubCategoriesUseCase getSubCategoriesUseCase;
-    private final GetRootCategoriesUseCase getRootCategoriesUseCase;
     private final CategoryRestMapper mapper;
 
     @PostMapping
@@ -48,14 +44,6 @@ public class CategoryController {
         CreateCategoryCommand command = mapper.toCommand(request);
         Category category = createCategoryUseCase.execute(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(category));
-    }
-
-    @GetMapping("/{id}")
-    @Operation(summary = "Get category by ID")
-    public ResponseEntity<CategoryResponse> getCategory(@PathVariable Long id) {
-        GetCategoryQuery query = new GetCategoryQuery(id);
-        Category category = getCategoryUseCase.execute(query);
-        return ResponseEntity.ok(mapper.toResponse(category));
     }
 
     @GetMapping
@@ -73,33 +61,6 @@ public class CategoryController {
              return ResponseEntity.ok(new PageImpl<>(responses, pageable, responses.size()));
         }
     }
-
-    @GetMapping("/root")
-    @Operation(summary = "Get root categories")
-    public ResponseEntity<List<CategoryResponse>> getRootCategories() {
-        GetRootCategoriesQuery query = new GetRootCategoriesQuery();
-        List<Category> categories = getRootCategoriesUseCase.execute(query);
-        return ResponseEntity.ok(
-                categories.stream()
-                        .map(mapper::toResponse)
-                        .collect(Collectors.toList())
-        );
-    }
-
-    @GetMapping("/{id}/subcategories")
-    @Operation(summary = "Get subcategories")
-    public ResponseEntity<List<CategoryResponse>> getSubCategories(@PathVariable Long id) {
-        GetSubCategoriesQuery query = new GetSubCategoriesQuery();
-
-        List<Category> categories = getSubCategoriesUseCase.execute(query);
-
-        return ResponseEntity.ok(
-                categories.stream()
-                        .map(mapper::toResponse)
-                        .collect(Collectors.toList())
-        );
-    }
-
 
     @PutMapping("/{id}")
     @Operation(summary = "Update a category")

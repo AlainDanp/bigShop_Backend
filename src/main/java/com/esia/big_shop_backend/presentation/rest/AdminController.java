@@ -47,28 +47,4 @@ public class AdminController {
         return ResponseEntity.ok(stats);
     }
 
-    @GetMapping("/top-products")
-    @Operation(summary = "Get top selling products")
-    public ResponseEntity<List<TopProductStatistic>> getTopProducts(
-            @RequestParam(defaultValue = "10") int limit) {
-        List<TopProductStatistic> stats = getTopSellingProductsUseCase.execute(limit);
-        return ResponseEntity.ok(stats);
-    }
-
-    @GetMapping("/user-growth")
-    @Operation(summary = "Get user growth statistics")
-    public ResponseEntity<UserGrowthStatistics> getUserGrowthStats(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        UserGrowthStatistics stats = getUserGrowthStatisticsUseCase.execute(startDate, endDate);
-        return ResponseEntity.ok(stats);
-    }
-
-    @GetMapping("/low-stock")
-    @Operation(summary = "Get low stock products")
-    public ResponseEntity<List<ProductResponse>> getLowStockProducts(
-            @RequestParam(defaultValue = "10") int threshold) {
-        List<Product> products = getLowStockProductsUseCase.execute(threshold);
-        return ResponseEntity.ok(products.stream().map(productMapper::toResponse).collect(Collectors.toList()));
-    }
 }
